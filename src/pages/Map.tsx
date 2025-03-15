@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import Layout from '@/components/Layout';
 import Map from '@/components/Map';
 import { MapPin, Navigation, Filter } from 'lucide-react';
