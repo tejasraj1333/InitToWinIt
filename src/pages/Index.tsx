@@ -61,7 +61,7 @@ const trendingThreads = [
   {
     id: '1',
     title: 'Ideas for Improving the West Side Park',
-    preview: 'I've noticed the west side park has been getting a bit run down. Does anyone have ideas for community-led improvements?',
+    preview: "I've noticed the west side park has been getting a bit run down. Does anyone have ideas for community-led improvements?",
     author: {
       id: '1',
       name: 'Sarah Johnson',
