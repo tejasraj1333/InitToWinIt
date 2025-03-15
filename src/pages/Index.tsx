@@ -47,7 +47,7 @@ const recentNews = [
   {
     id: '4',
     title: 'Traffic Advisory: Main Street Construction Begins Monday',
-    summary: 'Drivers should expect delays and consider alternate routes as repaving work begins on the city's main thoroughfare.',
+    summary: "Drivers should expect delays and consider alternate routes as repaving work begins on the city's main thoroughfare.",
     category: 'Transportation',
     image: 'https://images.unsplash.com/photo-1566995541428-70832a1c07cc?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80',
     source: 'City Updates',

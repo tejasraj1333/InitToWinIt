@@ -18,7 +18,7 @@ const forumThreads = [
   {
     id: '1',
     title: 'Ideas for Improving the West Side Park',
-    preview: 'I've noticed the west side park has been getting a bit run down. Does anyone have ideas for community-led improvements?',
+    preview: "I've noticed the west side park has been getting a bit run down. Does anyone have ideas for community-led improvements?",
     author: {
       id: '1',
       name: 'Sarah Johnson',
@@ -47,7 +47,7 @@ const forumThreads = [
   {
     id: '3',
     title: 'Monthly Neighborhood Clean-up Initiative',
-    preview: 'I\'d like to organize a monthly clean-up day for our neighborhood. Looking for volunteers and suggestions on how to get started.',
+    preview: "I'd like to organize a monthly clean-up day for our neighborhood. Looking for volunteers and suggestions on how to get started.",
     author: {
       id: '3',
       name: 'James Wilson',
@@ -76,7 +76,7 @@ const forumThreads = [
   {
     id: '5',
     title: 'School District Budget Meeting Summary',
-    preview: 'I attended the school board meeting last night. Here\'s a summary of the proposed budget changes and key decisions.',
+    preview: "I attended the school board meeting last night. Here's a summary of the proposed budget changes and key decisions.",
     author: {
       id: '5',
       name: 'David Park',
@@ -90,7 +90,7 @@ const forumThreads = [
   {
     id: '6',
     title: 'Lost Cat - Orange Tabby in Maple Heights Area',
-    preview: 'Our cat Rusty went missing yesterday around Maple Heights. He\'s an orange tabby with a white collar. Please contact me if you see him!',
+    preview: "Our cat Rusty went missing yesterday around Maple Heights. He's an orange tabby with a white collar. Please contact me if you see him!",
     author: {
       id: '6',
       name: 'Lisa Thompson',
@@ -118,7 +118,7 @@ const forumThreads = [
   {
     id: '8',
     title: 'Farmers Market Vendor Applications Now Open',
-    preview: 'The summer farmers market is accepting vendor applications. I\'ve included details on how to apply and deadlines in this post.',
+    preview: "The summer farmers market is accepting vendor applications. I've included details on how to apply and deadlines in this post.",
     author: {
       id: '8',
       name: 'Nicole Lewis',

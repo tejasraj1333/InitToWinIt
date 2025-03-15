@@ -32,7 +32,7 @@ const userThreads = [
   {
     id: '1',
     title: 'Ideas for Improving the West Side Park',
-    preview: 'I've noticed the west side park has been getting a bit run down. Does anyone have ideas for community-led improvements?',
+    preview: "I've noticed the west side park has been getting a bit run down. Does anyone have ideas for community-led improvements?",
     author: {
       id: '1',
       name: 'Sarah Johnson',
@@ -47,7 +47,7 @@ const userThreads = [
   {
     id: '2',
     title: 'Monthly Neighborhood Clean-up Initiative',
-    preview: 'I\'d like to organize a monthly clean-up day for our neighborhood. Looking for volunteers and suggestions on how to get started.',
+    preview: "I'd like to organize a monthly clean-up day for our neighborhood. Looking for volunteers and suggestions on how to get started.",
     author: {
       id: '1',
       name: 'Sarah Johnson',
