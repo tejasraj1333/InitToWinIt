@@ -1,10 +1,9 @@
 
 import React, { useState } from 'react';
-import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Info } from 'lucide-react';
 import L from 'leaflet';
 
 // Fix for default marker icons in Leaflet with webpack/vite
@@ -62,13 +61,6 @@ const demoPoints: MapPoint[] = [
   }
 ];
 
-// Component to set the map center/view
-const SetViewOnLoad = ({ center, zoom }: { center: [number, number]; zoom: number }) => {
-  const map = useMap();
-  map.setView(center, zoom);
-  return null;
-};
-
 const Map: React.FC = () => {
   const [selectedPoint, setSelectedPoint] = useState<MapPoint | null>(null);
   const [activeFilters, setActiveFilters] = useState<Record<string, boolean>>({
@@ -110,21 +102,20 @@ const Map: React.FC = () => {
     <div className="relative w-full h-[calc(100vh-16rem)] min-h-[400px] rounded-lg overflow-hidden border border-border">
       {/* Map Container */}
       <MapContainer 
-        center={[37.7749, -122.4194]} 
-        zoom={13} 
         style={{ height: '100%', width: '100%' }}
+        center={[37.7749, -122.4194] as [number, number]}
+        zoom={13}
         zoomControl={false}
       >
         <TileLayer
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         />
-        <SetViewOnLoad center={[37.7749, -122.4194]} zoom={13} />
         
         {filteredPoints.map((point) => (
           <Marker 
             key={point.id}
-            position={[point.lat, point.lng]}
+            position={[point.lat, point.lng] as [number, number]}
             icon={createCustomIcon(point.color || '#8B5CF6')}
             eventHandlers={{
               click: () => {
