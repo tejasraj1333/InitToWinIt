@@ -1,9 +1,11 @@
 
-import React, { useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import { Menu, X, Newspaper, Map, Bookmark, BookmarkPlus } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Menu, X, Newspaper, Map, Bookmark } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useLocalStorage } from '@/hooks/use-local-storage';
+import { Button } from '@/components/ui/button';
+import { useToast } from '@/hooks/use-toast';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -12,6 +14,8 @@ interface LayoutProps {
 const Layout: React.FC<LayoutProps> = ({ children }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
+  const { toast } = useToast();
   const [savedArticles] = useLocalStorage<string[]>('savedArticles', []);
   
   const navLinks = [
@@ -21,6 +25,20 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
+  };
+  
+  const handleSavedArticlesClick = () => {
+    if (savedArticles.length === 0) {
+      toast({
+        title: "No saved articles",
+        description: "You haven't saved any articles yet.",
+      });
+    } else {
+      toast({
+        title: `${savedArticles.length} articles saved`,
+        description: "Click on any article to view it.",
+      });
+    }
   };
 
   return (
@@ -65,14 +83,19 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           
           {/* Actions */}
           <div className="flex items-center space-x-2">
-            <div className="p-2 rounded-full hover:bg-muted transition-colors relative">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="p-2 rounded-full hover:bg-muted transition-colors relative"
+              onClick={handleSavedArticlesClick}
+            >
               <Bookmark className="h-5 w-5" />
               {savedArticles.length > 0 && (
                 <span className="absolute -top-1 -right-1 bg-primary text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">
                   {savedArticles.length}
                 </span>
               )}
-            </div>
+            </Button>
           </div>
         </div>
         

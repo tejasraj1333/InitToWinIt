@@ -44,15 +44,14 @@ const INDIAN_STATES = [
   { name: 'Assam', lat: 26.2006, lng: 92.9376 }
 ];
 
-export interface LocationPoint {
+export interface MapLocation {
   id: string;
   lat: number;
   lng: number;
+  name?: string;
   title: string;
   description: string;
-  source: string;
-  publishedAt: string;
-  url: string;
+  url?: string;
   imageUrl?: string;
 }
 

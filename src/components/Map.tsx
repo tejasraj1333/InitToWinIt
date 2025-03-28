@@ -1,168 +1,130 @@
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import L from 'leaflet';
-import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
-import { Skeleton } from '@/components/ui/skeleton';
-import { Badge } from '@/components/ui/badge';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ChevronRight, MapPin } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
-import { LocationPoint } from '@/utils/locationUtils';
 
-// Fix for the default icon in Leaflet
-delete (L.Icon.Default.prototype as any)._getIconUrl;
-L.Icon.Default.mergeOptions({
-  iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
-  iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
-  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
-});
+// Fix the missing leaflet marker icon issue
+import icon from 'leaflet/dist/images/marker-icon.png';
+import iconShadow from 'leaflet/dist/images/marker-shadow.png';
 
-// Custom marker icon
-const customIcon = new L.Icon({
-  iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
-  iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
-  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
+let DefaultIcon = L.icon({
+  iconUrl: icon,
+  shadowUrl: iconShadow,
   iconSize: [25, 41],
-  iconAnchor: [12, 41],
-  popupAnchor: [1, -34],
-  shadowSize: [41, 41]
+  iconAnchor: [12, 41]
 });
 
-// Types
-export interface Location {
+L.Marker.prototype.options.icon = DefaultIcon;
+
+// Define the location type
+export interface MapLocation {
   id: string;
   lat: number;
   lng: number;
-  name: string;
-  articleIndex: number;
+  name?: string;
   title: string;
   description: string;
+  url?: string;
+  imageUrl?: string;
 }
 
 interface MapProps {
-  locations: Location[];
-  isLoading: boolean;
+  locations: MapLocation[];
+  height?: string;
+  width?: string;
+  onMarkerClick?: (location: MapLocation) => void;
 }
 
-// Helper component to handle map initialization and methods
-const MapController = ({ selectedLocation }: { selectedLocation: Location | null }) => {
-  const map = useMap();
-  
+const DEFAULT_CENTER: [number, number] = [20.5937, 78.9629]; // Center of India
+
+const Map: React.FC<MapProps> = ({
+  locations = [],
+  height = '500px',
+  width = '100%',
+  onMarkerClick
+}) => {
+  const [selectedLocation, setSelectedLocation] = useState<MapLocation | null>(null);
+  const [map, setMap] = useState<L.Map | null>(null);
+
+  // Center map on locations if available
   useEffect(() => {
-    if (selectedLocation) {
-      map.setView(
-        [selectedLocation.lat, selectedLocation.lng],
-        10,
-        { animate: true }
-      );
+    if (map && locations.length > 0) {
+      const bounds = L.latLngBounds(locations.map(loc => [loc.lat, loc.lng]));
+      map.fitBounds(bounds, { padding: [50, 50] });
     }
-  }, [selectedLocation, map]);
-  
-  return null;
-};
+  }, [map, locations]);
 
-const Map: React.FC<MapProps> = ({ locations, isLoading }) => {
-  const [selectedLocation, setSelectedLocation] = useState<Location | null>(null);
-  const navigate = useNavigate();
-  
-  // Center map on India
-  const defaultCenter: [number, number] = [20.5937, 78.9629];
-  const defaultZoom = 5;
+  const handleMarkerClick = (location: MapLocation) => {
+    setSelectedLocation(location);
+    if (onMarkerClick) {
+      onMarkerClick(location);
+    }
+  };
 
-  const handleViewArticle = (articleIndex: number) => {
-    navigate(`/news/${articleIndex}`);
+  const handleOpenArticle = (url?: string) => {
+    if (url) {
+      window.open(url, '_blank');
+    }
   };
 
   return (
-    <div className="bg-card border border-border rounded-xl overflow-hidden">
-      {isLoading ? (
-        <Skeleton className="w-full h-[60vh]" />
-      ) : (
-        <div className="grid md:grid-cols-3 h-[60vh]">
-          <div className="md:col-span-2 h-full">
-            <MapContainer
-              style={{ height: '100%', width: '100%' }}
-              defaultCenter={defaultCenter}
-              defaultZoom={defaultZoom}
-              zoomControl={true}
-              scrollWheelZoom={false}
-            >
-              <TileLayer
-                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-              />
-              
-              <MapController selectedLocation={selectedLocation} />
-              
-              {locations.map((location, idx) => (
-                <Marker
-                  key={`${location.name}-${idx}`}
-                  position={[location.lat, location.lng]}
-                  eventHandlers={{
-                    click: () => setSelectedLocation(location),
-                  }}
-                >
-                  <Popup>
-                    <div className="p-1">
-                      <h3 className="font-medium text-sm">{location.name}</h3>
-                    </div>
-                  </Popup>
-                </Marker>
-              ))}
-            </MapContainer>
-          </div>
+    <Card className="shadow-lg">
+      <CardContent className="p-0 overflow-hidden rounded-lg">
+        <MapContainer
+          style={{ height, width }}
+          center={DEFAULT_CENTER}
+          zoom={5}
+          zoomControl={true}
+          scrollWheelZoom={true}
+          whenCreated={setMap}
+        >
+          <TileLayer
+            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+          />
           
-          <div className="p-4 overflow-y-auto">
-            {selectedLocation ? (
-              <div className="space-y-4">
-                <div>
-                  <Badge className="mb-2">{selectedLocation.name}</Badge>
-                  <h3 className="font-display text-lg font-semibold mb-2">
-                    {selectedLocation.title}
-                  </h3>
-                  <p className="text-sm text-muted-foreground line-clamp-3 mb-4">
-                    {selectedLocation.description}
-                  </p>
-                  <Button 
-                    onClick={() => handleViewArticle(selectedLocation.articleIndex)}
-                    className="w-full justify-between"
-                  >
-                    View Details
-                    <ChevronRight className="h-4 w-4" />
-                  </Button>
+          {locations.map((location) => (
+            <Marker
+              key={location.id}
+              position={[location.lat, location.lng]}
+              eventHandlers={{
+                click: () => handleMarkerClick(location),
+              }}
+            >
+              <Popup>
+                <div className="max-w-[250px]">
+                  {location.imageUrl && (
+                    <img 
+                      src={location.imageUrl} 
+                      alt={location.title} 
+                      className="w-full h-32 object-cover mb-2 rounded"
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).src = 'https://via.placeholder.com/150';
+                      }}
+                    />
+                  )}
+                  <h3 className="font-semibold text-base mb-1">{location.title}</h3>
+                  <p className="text-xs mb-2 line-clamp-3">{location.description}</p>
+                  {location.url && (
+                    <Button 
+                      size="sm" 
+                      variant="outline" 
+                      className="w-full text-xs" 
+                      onClick={() => handleOpenArticle(location.url)}
+                    >
+                      Read Article
+                    </Button>
+                  )}
                 </div>
-                <div className="pt-4 border-t border-border">
-                  <h4 className="font-medium mb-2">Other Locations</h4>
-                  <div className="space-y-2">
-                    {locations.slice(0, 5).filter(loc => 
-                      loc.lat !== selectedLocation.lat || loc.lng !== selectedLocation.lng
-                    ).map((loc, idx) => (
-                      <div 
-                        key={idx}
-                        className="p-2 hover:bg-muted rounded-md cursor-pointer flex items-center gap-2"
-                        onClick={() => setSelectedLocation(loc)}
-                      >
-                        <MapPin className="h-4 w-4 text-primary" />
-                        <span className="text-sm">{loc.name}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            ) : (
-              <div className="h-full flex flex-col justify-center items-center text-center p-4">
-                <MapPin className="h-12 w-12 text-muted-foreground mb-4" />
-                <h3 className="font-medium mb-2">Select a location</h3>
-                <p className="text-sm text-muted-foreground">
-                  Click on any pin on the map to view news from that location.
-                </p>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
-    </div>
+              </Popup>
+            </Marker>
+          ))}
+        </MapContainer>
+      </CardContent>
+    </Card>
   );
 };
 

@@ -5,6 +5,7 @@ import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
 import { useLocalStorage } from '@/hooks/use-local-storage';
+import { useToast } from '@/hooks/use-toast';
 
 interface NewsCardProps {
   id: string;
@@ -35,6 +36,7 @@ const NewsCard: React.FC<NewsCardProps> = ({
 }) => {
   const isFeatured = variant === 'featured';
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [savedArticles, setSavedArticles] = useLocalStorage<string[]>('savedArticles', []);
   const isSaved = savedArticles.includes(id);
   
@@ -48,10 +50,23 @@ const NewsCard: React.FC<NewsCardProps> = ({
 
   const toggleSaveArticle = (e: React.MouseEvent) => {
     e.stopPropagation();
+    
     if (isSaved) {
-      setSavedArticles(savedArticles.filter(articleId => articleId !== id));
+      // Remove the article from saved articles
+      const updatedSavedArticles = savedArticles.filter(articleId => articleId !== id);
+      setSavedArticles(updatedSavedArticles);
+      toast({
+        title: "Article removed",
+        description: "The article has been removed from your saved list.",
+      });
     } else {
-      setSavedArticles([...savedArticles, id]);
+      // Add the article to saved articles
+      const updatedSavedArticles = [...savedArticles, id];
+      setSavedArticles(updatedSavedArticles);
+      toast({
+        title: "Article saved",
+        description: "The article has been added to your saved list.",
+      });
     }
   };
 
