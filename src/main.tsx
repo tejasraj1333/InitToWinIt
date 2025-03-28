@@ -1,5 +1,15 @@
-import { createRoot } from 'react-dom/client'
+
+import React from 'react'
+import ReactDOM from 'react-dom/client'
 import App from './App.tsx'
 import './index.css'
+import { initDateUtils } from './utils/dateUtils.ts'
 
-createRoot(document.getElementById("root")!).render(<App />);
+// Initialize date utilities
+initDateUtils();
+
+ReactDOM.createRoot(document.getElementById('root')!).render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>,
+)

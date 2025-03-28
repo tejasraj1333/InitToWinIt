@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Menu, X, Search, Bell, User, Home, MessageSquare, Calendar, Map } from 'lucide-react';
+import { Menu, X, Search, Bell, User, Newspaper, Map } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface LayoutProps {
@@ -13,10 +13,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   const location = useLocation();
   
   const navLinks = [
-    { name: 'Home', path: '/', icon: Home },
-    { name: 'News', path: '/news', icon: Search },
-    { name: 'Forums', path: '/forums', icon: MessageSquare },
-    { name: 'Events', path: '/events', icon: Calendar },
+    { name: 'News', path: '/news', icon: Newspaper },
     { name: 'Map', path: '/map', icon: Map },
   ];
   
@@ -43,7 +40,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
             </button>
             <Link to="/" className="flex items-center">
               <span className="font-display text-xl font-semibold bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent">
-                HyperLocal Connect
+                India News
               </span>
             </Link>
           </div>
@@ -66,18 +63,6 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           
           {/* Actions */}
           <div className="flex items-center space-x-2">
-            <button 
-              className="p-2 rounded-full hover:bg-muted transition-colors"
-              aria-label="Search"
-            >
-              <Search className="h-5 w-5" />
-            </button>
-            <button 
-              className="p-2 rounded-full hover:bg-muted transition-colors"
-              aria-label="Notifications"
-            >
-              <Bell className="h-5 w-5" />
-            </button>
             <Link 
               to="/profile" 
               className="p-2 rounded-full hover:bg-muted transition-colors"
@@ -123,10 +108,9 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div>
-              <h3 className="font-display text-lg font-semibold mb-4">HyperLocal Connect</h3>
+              <h3 className="font-display text-lg font-semibold mb-4">India News</h3>
               <p className="text-muted-foreground text-sm">
-                Connecting you to your local community with hyperlocal news, 
-                discussions, and events.
+                Staying informed with the latest news and events across India.
               </p>
             </div>
             <div>
@@ -159,7 +143,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
             </div>
           </div>
           <div className="mt-8 pt-4 border-t border-border/50 text-center text-sm text-muted-foreground">
-            &copy; {new Date().getFullYear()} HyperLocal Connect. All rights reserved.
+            &copy; {new Date().getFullYear()} India News. All rights reserved.
           </div>
         </div>
       </footer>

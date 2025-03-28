@@ -1,10 +1,13 @@
 
 import React, { useState } from 'react';
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Clock, ExternalLink, X, Newspaper } from 'lucide-react';
 import L from 'leaflet';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
+import { LocationPoint } from '@/utils/locationUtils';
 
 // Fix for default marker icons in Leaflet with webpack/vite
 import icon from 'leaflet/dist/images/marker-icon.png';
@@ -19,78 +22,30 @@ let DefaultIcon = L.icon({
 
 L.Marker.prototype.options.icon = DefaultIcon;
 
-// Types for our map points
-interface MapPoint {
-  id: string;
-  type: 'news' | 'event' | 'discussion';
-  title: string;
-  description: string;
-  lat: number;
-  lng: number;
-  color?: string;
+// Component to recenter map when locations change
+const MapController = ({ center }: { center: [number, number] }) => {
+  const map = useMap();
+  map.setView(center, 5);
+  return null;
+};
+
+interface MapProps {
+  locations: LocationPoint[];
+  isLoading?: boolean;
 }
 
-// Demo data
-const demoPoints: MapPoint[] = [
-  {
-    id: '1',
-    type: 'news',
-    title: 'New Community Center',
-    description: 'Grand opening this weekend with activities for all ages.',
-    lat: 37.7749,
-    lng: -122.4194,
-    color: '#F97316' // Orange for news
-  },
-  {
-    id: '2',
-    type: 'event',
-    title: 'Farmers Market',
-    description: 'Local produce and handcrafted goods every Saturday.',
-    lat: 37.7848,
-    lng: -122.4294,
-    color: '#8B5CF6' // Purple for events
-  },
-  {
-    id: '3',
-    type: 'discussion',
-    title: 'Park Improvements',
-    description: 'Community discussion about West Side Park renovations.',
-    lat: 37.7648,
-    lng: -122.4144,
-    color: '#0EA5E9' // Blue for discussions
-  }
-];
-
-const Map: React.FC = () => {
-  const [selectedPoint, setSelectedPoint] = useState<MapPoint | null>(null);
-  const [activeFilters, setActiveFilters] = useState<Record<string, boolean>>({
-    news: true,
-    event: true,
-    discussion: true
-  });
-
-  const toggleFilter = (type: 'news' | 'event' | 'discussion') => {
-    setActiveFilters(prev => ({
-      ...prev,
-      [type]: !prev[type]
-    }));
-  };
-
-  const filteredPoints = demoPoints.filter(point => 
-    activeFilters[point.type]
-  );
+const Map: React.FC<MapProps> = ({ locations, isLoading = false }) => {
+  const [selectedPoint, setSelectedPoint] = useState<LocationPoint | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [mapCenter, setMapCenter] = useState<[number, number]>([20.5937, 78.9629]); // Center of India
 
   // Custom marker component
-  const createCustomIcon = (color: string) => {
+  const createCustomIcon = () => {
     return L.divIcon({
       className: 'custom-marker',
-      html: `<div style="background-color: ${color}; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 5px rgba(0,0,0,0.2);">
+      html: `<div style="background-color: #F97316; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 5px rgba(0,0,0,0.2);">
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                ${
-                  color === '#F97316' ? '<path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2Zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2"></path>' : 
-                  color === '#8B5CF6' ? '<rect width="18" height="18" x="3" y="4" rx="2" ry="2"></rect><line x1="16" x2="16" y1="2" y2="6"></line><line x1="8" x2="8" y1="2" y2="6"></line><line x1="3" x2="21" y1="10" y2="10"></line>' : 
-                  '<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>'
-                }
+                <path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2Zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2"></path>
               </svg>
             </div>`,
       iconSize: [32, 32],
@@ -98,13 +53,30 @@ const Map: React.FC = () => {
     });
   };
 
+  const handlePointClick = (point: LocationPoint) => {
+    setSelectedPoint(point);
+    if (window.innerWidth < 768) { // For mobile devices, open modal
+      setIsModalOpen(true);
+    }
+  };
+
+  const handleViewDetails = () => {
+    if (selectedPoint) {
+      setIsModalOpen(true);
+    }
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+  };
+
   return (
     <div className="relative w-full h-[calc(100vh-16rem)] min-h-[400px] rounded-lg overflow-hidden border border-border">
       {/* Map Container */}
       <MapContainer 
         style={{ height: '100%', width: '100%' }}
-        center={[37.7749, -122.4194] as [number, number]}
-        zoom={13}
+        center={mapCenter}
+        zoom={5}
         zoomControl={false}
       >
         <TileLayer
@@ -112,75 +84,66 @@ const Map: React.FC = () => {
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         />
         
-        {filteredPoints.map((point) => (
+        <MapController center={mapCenter} />
+        
+        {!isLoading && locations.map((point) => (
           <Marker 
             key={point.id}
             position={[point.lat, point.lng] as [number, number]}
-            icon={createCustomIcon(point.color || '#8B5CF6')}
+            icon={createCustomIcon()}
             eventHandlers={{
-              click: () => {
-                setSelectedPoint(point);
-              }
+              click: () => handlePointClick(point)
             }}
           >
             <Popup>
               <div className="p-2">
                 <h3 className="font-medium">{point.title}</h3>
-                <p className="text-sm">{point.description}</p>
+                <p className="text-sm line-clamp-2">{point.description}</p>
+                <Button 
+                  variant="link" 
+                  size="sm" 
+                  className="p-0 mt-1"
+                  onClick={() => handlePointClick(point)}
+                >
+                  Read more
+                </Button>
               </div>
             </Popup>
           </Marker>
         ))}
       </MapContainer>
       
-      {/* Map Filters */}
-      <div className="absolute top-4 left-4 z-10 bg-background/90 backdrop-blur-sm p-2 rounded-lg border border-border shadow-sm">
-        <div className="flex gap-2">
-          <Button 
-            size="sm" 
-            variant={activeFilters.news ? "default" : "outline"} 
-            className="flex items-center gap-1" 
-            onClick={() => toggleFilter('news')}
-          >
-            <div className="w-3 h-3 rounded-full bg-[#F97316]" />
-            News
-          </Button>
-          <Button 
-            size="sm" 
-            variant={activeFilters.event ? "default" : "outline"} 
-            className="flex items-center gap-1" 
-            onClick={() => toggleFilter('event')}
-          >
-            <div className="w-3 h-3 rounded-full bg-[#8B5CF6]" />
-            Events
-          </Button>
-          <Button 
-            size="sm" 
-            variant={activeFilters.discussion ? "default" : "outline"} 
-            className="flex items-center gap-1" 
-            onClick={() => toggleFilter('discussion')}
-          >
-            <div className="w-3 h-3 rounded-full bg-[#0EA5E9]" />
-            Discussions
-          </Button>
-        </div>
-      </div>
-      
       {/* Zoom Controls */}
-      <div className="absolute top-4 right-4 z-10 bg-background/90 backdrop-blur-sm p-2 rounded-lg border border-border shadow-sm">
+      <div className="absolute top-4 right-4 z-[400] bg-background/90 backdrop-blur-sm p-2 rounded-lg border border-border shadow-sm">
         <div className="flex flex-col gap-2">
-          <Button variant="outline" size="sm" className="flex items-center justify-center h-8 w-8 p-0">+</Button>
-          <Button variant="outline" size="sm" className="flex items-center justify-center h-8 w-8 p-0">-</Button>
+          <Button 
+            variant="outline" 
+            size="sm" 
+            className="flex items-center justify-center h-8 w-8 p-0"
+            onClick={() => {
+              const map = document.querySelector('.leaflet-container')?._leaflet_map;
+              if (map) map.zoomIn();
+            }}
+          >+</Button>
+          <Button 
+            variant="outline" 
+            size="sm" 
+            className="flex items-center justify-center h-8 w-8 p-0"
+            onClick={() => {
+              const map = document.querySelector('.leaflet-container')?._leaflet_map;
+              if (map) map.zoomOut();
+            }}
+          >-</Button>
         </div>
       </div>
       
       {/* Selected Point Info */}
-      {selectedPoint && (
-        <Card className="absolute bottom-4 left-4 z-10 w-64 p-4 shadow-lg animate-fade-in">
+      {selectedPoint && !isModalOpen && (
+        <Card className="absolute bottom-4 left-4 z-[400] w-64 p-4 shadow-lg animate-fade-in">
           <div className="flex justify-between items-start mb-2">
             <div className="flex items-center gap-2">
-              <div className="w-3 h-3 rounded-full" style={{ backgroundColor: selectedPoint.color }} />
-              <span className="text-xs font-medium uppercase">{selectedPoint.type}</span>
+              <div className="w-3 h-3 rounded-full bg-[#F97316]" />
+              <span className="text-xs font-medium uppercase">News</span>
             </div>
             <Button 
               variant="ghost" 
@@ -189,16 +152,70 @@ const Map: React.FC = () => {
               onClick={() => setSelectedPoint(null)}
             >
               <span className="sr-only">Close</span>
-              <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-x"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+              <X className="h-4 w-4" />
             </Button>
           </div>
-          <h4 className="font-medium">{selectedPoint.title}</h4>
-          <p className="text-sm text-muted-foreground mt-1">{selectedPoint.description}</p>
-          <Button variant="link" size="sm" className="mt-2 h-auto p-0 ml-auto block">
-            View Details
-          </Button>
+          <h4 className="font-medium line-clamp-2">{selectedPoint.title}</h4>
+          <p className="text-sm text-muted-foreground mt-1 line-clamp-2">{selectedPoint.description}</p>
+          <div className="flex justify-between items-center mt-2">
+            <div className="flex items-center text-xs text-muted-foreground">
+              <Clock className="h-3 w-3 mr-1" />
+              <span>{new Date(selectedPoint.publishedAt).toLocaleDateString()}</span>
+            </div>
+            <Button variant="link" size="sm" className="h-auto p-0" onClick={handleViewDetails}>
+              View Details
+            </Button>
+          </div>
         </Card>
       )}
+      
+      {/* News Detail Modal */}
+      <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+        <DialogContent className="sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle className="text-xl">{selectedPoint?.title}</DialogTitle>
+            <DialogDescription className="text-sm">
+              {selectedPoint?.source} • {selectedPoint ? new Date(selectedPoint.publishedAt).toLocaleDateString() : ''}
+            </DialogDescription>
+          </DialogHeader>
+          
+          {selectedPoint?.imageUrl && (
+            <div className="h-48 w-full rounded-md overflow-hidden">
+              <img 
+                src={selectedPoint.imageUrl} 
+                alt={selectedPoint.title}
+                className="w-full h-full object-cover" 
+                onError={(e) => {
+                  (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1614028674426-a2db91152aa8?q=80&w=600';
+                }}
+              />
+            </div>
+          )}
+          
+          <div className="space-y-4">
+            <p>{selectedPoint?.description}</p>
+            
+            <div className="flex justify-between items-center">
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={handleCloseModal}
+              >
+                Close
+              </Button>
+              <Button 
+                variant="default" 
+                size="sm"
+                className="flex items-center gap-2"
+                onClick={() => selectedPoint?.url && window.open(selectedPoint.url, '_blank')}
+              >
+                <ExternalLink className="h-4 w-4" />
+                Read Full Article
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

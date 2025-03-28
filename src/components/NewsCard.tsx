@@ -1,8 +1,8 @@
 
 import React from 'react';
-import { Link } from 'react-router-dom';
-import { MessageSquare, ThumbsUp, Share2, Clock } from 'lucide-react';
+import { MessageSquare, ThumbsUp, Share2, Clock, ExternalLink } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { Button } from '@/components/ui/button';
 
 interface NewsCardProps {
   id: string;
@@ -15,6 +15,7 @@ interface NewsCardProps {
   commentsCount: number;
   likesCount: number;
   variant?: 'default' | 'featured';
+  url: string;
 }
 
 const NewsCard: React.FC<NewsCardProps> = ({
@@ -27,9 +28,14 @@ const NewsCard: React.FC<NewsCardProps> = ({
   publishedAt,
   commentsCount,
   likesCount,
-  variant = 'default'
+  variant = 'default',
+  url
 }) => {
   const isFeatured = variant === 'featured';
+  
+  const handleOpenArticle = () => {
+    window.open(url, '_blank');
+  };
 
   return (
     <div 
@@ -38,7 +44,7 @@ const NewsCard: React.FC<NewsCardProps> = ({
         isFeatured ? "col-span-full md:col-span-2 md:row-span-2" : ""
       )}
     >
-      <Link to={`/news/${id}`} className="block h-full">
+      <div className="block h-full">
         <div className="flex flex-col h-full">
           {image && (
             <div className={cn("relative", isFeatured ? "h-64" : "h-48")}>
@@ -46,6 +52,9 @@ const NewsCard: React.FC<NewsCardProps> = ({
                 src={image} 
                 alt={title} 
                 className="w-full h-full object-cover object-center"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1614028674426-a2db91152aa8?q=80&w=600';
+                }}
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
               <div className="absolute top-4 left-4">
@@ -84,12 +93,19 @@ const NewsCard: React.FC<NewsCardProps> = ({
           </div>
           <div className="px-5 py-3 bg-muted/50 border-t border-border flex justify-between items-center">
             <span className="text-sm font-medium">{source}</span>
-            <button className="p-1 rounded-full hover:bg-background transition-colors">
-              <Share2 className="h-4 w-4" />
-            </button>
+            <div className="flex gap-2">
+              <Button variant="ghost" size="sm" className="p-1" onClick={handleOpenArticle}>
+                <ExternalLink className="h-4 w-4" />
+                <span className="sr-only">Open Article</span>
+              </Button>
+              <Button variant="ghost" size="sm" className="p-1">
+                <Share2 className="h-4 w-4" />
+                <span className="sr-only">Share</span>
+              </Button>
+            </div>
           </div>
         </div>
-      </Link>
+      </div>
     </div>
   );
 };
