@@ -1,4 +1,3 @@
-
 import { useQuery } from '@tanstack/react-query';
 
 export interface NewsArticle {
@@ -24,21 +23,36 @@ export interface NewsResponse {
 const NEWS_API_KEY = '7f380ba838a34cbb93f4f080babb5e8f';
 const NEWS_API_URL = 'https://newsapi.org/v2/everything';
 
+/**
+ * Fetches news from the News API
+ * 
+ * NOTE FOR PRODUCTION:
+ * Due to CORS restrictions in NewsAPI's developer plan, this should be 
+ * called from a backend service in production environments.
+ * 
+ * To implement with MongoDB:
+ * 1. Create a backend API route (Node.js/Express)
+ * 2. Call NewsAPI from the backend
+ * 3. Store results in MongoDB
+ * 4. Return results to frontend
+ * 
+ * @param query Search query, defaults to India news
+ * @returns Promise with news response
+ */
 export const fetchNews = async (query: string = ''): Promise<NewsResponse> => {
   const searchQuery = query ? query : 'India';
+  
   try {
+    // IMPORTANT: In production, move this API call to your backend
+    // This direct fetch will only work on localhost due to CORS restrictions
     const response = await fetch(
       `${NEWS_API_URL}?q=${encodeURIComponent(searchQuery + ' India')}&apiKey=${NEWS_API_KEY}&pageSize=20`
     );
     
     if (!response.ok) {
-      // Handle specific error for CORS issue with News API's developer plan
+      // For NewsAPI CORS issues in development
       if (response.status === 426) {
-        return {
-          status: 'ok',
-          totalResults: 5,
-          articles: getMockIndiaNews(searchQuery)
-        };
+        throw new Error('NewsAPI requires a backend proxy for production use due to CORS restrictions');
       }
       
       throw new Error(`Failed to fetch news: ${response.statusText}`);
@@ -47,16 +61,19 @@ export const fetchNews = async (query: string = ''): Promise<NewsResponse> => {
     return response.json();
   } catch (error) {
     console.error('Error fetching news:', error);
-    // Return mock data if real API fails
-    return {
-      status: 'ok',
-      totalResults: 5,
-      articles: getMockIndiaNews(searchQuery)
-    };
+    // Return mock data in development or throw in production
+    if (process.env.NODE_ENV === 'development') {
+      return {
+        status: 'ok',
+        totalResults: 5,
+        articles: getMockIndiaNews(searchQuery)
+      };
+    }
+    throw error;
   }
 };
 
-// Mock data function to handle CORS issues with News API
+// Mock data function for development purposes
 function getMockIndiaNews(query: string = ''): NewsArticle[] {
   const baseNews = [
     {
@@ -124,7 +141,73 @@ function getMockIndiaNews(query: string = ''): NewsArticle[] {
   return baseNews;
 }
 
-// Custom hook for fetching news
+/**
+ * HOW TO INTEGRATE WITH MONGODB:
+ * 
+ * 1. BACKEND SETUP (Node.js/Express/MongoDB):
+ * 
+ * a) Create a backend API with the following routes:
+ *    - GET /api/news - Fetch news from MongoDB or NewsAPI
+ *    - POST /api/news/save - Save article to user's collection
+ *    - GET /api/news/saved - Get user's saved articles
+ *    - DELETE /api/news/saved/:id - Remove article from saved
+ * 
+ * b) MongoDB Schema Example:
+ *    ```
+ *    // User Schema
+ *    const UserSchema = new mongoose.Schema({
+ *      email: { type: String, required: true, unique: true },
+ *      name: { type: String, required: true },
+ *      // other user fields
+ *    });
+ * 
+ *    // Saved Article Schema
+ *    const SavedArticleSchema = new mongoose.Schema({
+ *      userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+ *      articleData: {
+ *        title: { type: String, required: true },
+ *        description: { type: String },
+ *        url: { type: String, required: true },
+ *        urlToImage: { type: String },
+ *        publishedAt: { type: Date },
+ *        source: {
+ *          id: { type: String },
+ *          name: { type: String }
+ *        },
+ *        // other article fields
+ *      },
+ *      savedAt: { type: Date, default: Date.now }
+ *    });
+ *    ```
+ * 
+ * c) Example backend route to save an article:
+ *    ```
+ *    app.post('/api/news/save', authMiddleware, async (req, res) => {
+ *      try {
+ *        const { articleData } = req.body;
+ *        const userId = req.user.id;
+ *        
+ *        const savedArticle = new SavedArticleModel({
+ *          userId,
+ *          articleData
+ *        });
+ *        
+ *        await savedArticle.save();
+ *        res.status(200).json({ success: true, savedArticle });
+ *      } catch (error) {
+ *        res.status(500).json({ success: false, error: error.message });
+ *      }
+ *    });
+ *    ```
+ */
+
+/**
+ * Custom hook for fetching news
+ * 
+ * In a production app with MongoDB:
+ * - Replace the direct NewsAPI call with your backend API
+ * - Add authentication for user-specific saved articles
+ */
 export const useNews = (query: string = '') => {
   return useQuery({
     queryKey: ['news', query],
@@ -132,3 +215,62 @@ export const useNews = (query: string = '') => {
     staleTime: 5 * 60 * 1000, // 5 minutes
   });
 };
+
+/**
+ * TO IMPLEMENT MONGODB INTEGRATION:
+ * 
+ * 1. Create these additional hooks for saved articles:
+ * 
+ * // Hook to save an article
+ * export const useSaveArticle = () => {
+ *   const queryClient = useQueryClient();
+ *   
+ *   return useMutation({
+ *     mutationFn: (article: NewsArticle) => {
+ *       // In production, call your backend API
+ *       return fetch('/api/news/save', {
+ *         method: 'POST',
+ *         headers: { 'Content-Type': 'application/json' },
+ *         body: JSON.stringify({ articleData: article }),
+ *         credentials: 'include'
+ *       }).then(res => res.json());
+ *     },
+ *     onSuccess: () => {
+ *       // Invalidate saved articles query to refetch
+ *       queryClient.invalidateQueries({ queryKey: ['savedArticles'] });
+ *     }
+ *   });
+ * };
+ * 
+ * // Hook to get user's saved articles
+ * export const useSavedArticles = () => {
+ *   return useQuery({
+ *     queryKey: ['savedArticles'],
+ *     queryFn: () => {
+ *       // In production, call your backend API
+ *       return fetch('/api/news/saved', {
+ *         credentials: 'include'
+ *       }).then(res => res.json());
+ *     }
+ *   });
+ * };
+ * 
+ * // Hook to remove a saved article
+ * export const useRemoveSavedArticle = () => {
+ *   const queryClient = useQueryClient();
+ *   
+ *   return useMutation({
+ *     mutationFn: (articleId: string) => {
+ *       // In production, call your backend API
+ *       return fetch(`/api/news/saved/${articleId}`, {
+ *         method: 'DELETE',
+ *         credentials: 'include'
+ *       }).then(res => res.json());
+ *     },
+ *     onSuccess: () => {
+ *       // Invalidate saved articles query to refetch
+ *       queryClient.invalidateQueries({ queryKey: ['savedArticles'] });
+ *     }
+ *   });
+ * };
+ */

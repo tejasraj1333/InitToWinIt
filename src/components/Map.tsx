@@ -1,7 +1,7 @@
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import L from 'leaflet';
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import { Location } from '@/utils/locationUtils';
 import { useNavigate } from 'react-router-dom';
@@ -37,7 +37,20 @@ interface MapProps {
   center?: [number, number];
   zoom?: number;
   showPopupOnHover?: boolean;
+  height?: string;
+  onMarkerClick?: (location: Location) => void;
 }
+
+// Component to update map view when props change
+const MapUpdater: React.FC<{ center: [number, number]; zoom: number }> = ({ center, zoom }) => {
+  const map = useMap();
+  
+  useEffect(() => {
+    map.setView(center, zoom);
+  }, [map, center, zoom]);
+  
+  return null;
+};
 
 const defaultCenter: [number, number] = [20.5937, 78.9629]; // Center of India
 
@@ -45,14 +58,16 @@ const MapComponent: React.FC<MapProps> = ({
   locations = [],
   center = defaultCenter,
   zoom = 5,
-  showPopupOnHover = false
+  showPopupOnHover = false,
+  height = '500px',
+  onMarkerClick
 }) => {
   const navigate = useNavigate();
   const mapCenter = center || defaultCenter;
 
   // Set up map container style
   const mapContainerStyle = {
-    height: '500px',
+    height: height,
     width: '100%',
   };
 
@@ -62,30 +77,15 @@ const MapComponent: React.FC<MapProps> = ({
     return createCustomIcon('blue');
   };
 
-  // Set up the map instance reference
-  const [mapInstance, setMapInstance] = React.useState<L.Map | null>(null);
-  
-  // Handle map creation
-  const handleMapCreated = (map: L.Map) => {
-    setMapInstance(map);
-  };
-
-  // Update map view if center or zoom changes
-  useEffect(() => {
-    if (mapInstance) {
-      mapInstance.setView(mapCenter, zoom);
-    }
-  }, [mapInstance, mapCenter, zoom]);
-
   return (
     <MapContainer
       style={mapContainerStyle}
       center={mapCenter}
       zoom={zoom}
-      zoomControl={true}
       scrollWheelZoom={true}
-      whenReady={(map) => handleMapCreated(map.target)}
     >
+      <MapUpdater center={mapCenter} zoom={zoom} />
+      
       <TileLayer
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
@@ -98,7 +98,9 @@ const MapComponent: React.FC<MapProps> = ({
           icon={getMarkerIcon(location)}
           eventHandlers={{
             click: () => {
-              if (location.articleIndex !== undefined) {
+              if (onMarkerClick) {
+                onMarkerClick(location);
+              } else if (location.articleIndex !== undefined) {
                 navigate(`/news/${location.articleIndex}`);
               }
             },
