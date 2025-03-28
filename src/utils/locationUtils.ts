@@ -56,8 +56,19 @@ export interface LocationPoint {
   imageUrl?: string;
 }
 
-export const extractLocationsFromNews = (articles: NewsArticle[]): LocationPoint[] => {
-  const locations: LocationPoint[] = [];
+// This interface matches what our Map component expects
+export interface Location {
+  id: string;
+  lat: number;
+  lng: number;
+  name: string;
+  articleIndex: number;
+  title: string;
+  description: string;
+}
+
+export const extractLocationsFromNews = (articles: NewsArticle[]): Location[] => {
+  const locations: Location[] = [];
   
   articles.forEach((article, index) => {
     // Concatenate title and description to search for locations
@@ -70,12 +81,10 @@ export const extractLocationsFromNews = (articles: NewsArticle[]): LocationPoint
           id: `news-${index}-${city.name}`,
           lat: city.lat,
           lng: city.lng,
+          name: city.name,
+          articleIndex: index,
           title: article.title,
-          description: article.description || 'No description available',
-          source: article.source.name,
-          publishedAt: article.publishedAt,
-          url: article.url,
-          imageUrl: article.urlToImage
+          description: article.description || 'No description available'
         });
         break; // Only add one location per article
       }
@@ -89,12 +98,10 @@ export const extractLocationsFromNews = (articles: NewsArticle[]): LocationPoint
             id: `news-${index}-${state.name}`,
             lat: state.lat,
             lng: state.lng,
+            name: state.name,
+            articleIndex: index,
             title: article.title,
-            description: article.description || 'No description available',
-            source: article.source.name,
-            publishedAt: article.publishedAt,
-            url: article.url,
-            imageUrl: article.urlToImage
+            description: article.description || 'No description available'
           });
           break; // Only add one location per article
         }

@@ -1,12 +1,12 @@
 
 import React, { useState, useEffect } from 'react';
 import Layout from '@/components/Layout';
-import Map from '@/components/Map';
+import MapComponent from '@/components/Map';
 import { MapPin, Search, Loader2 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { useNews } from '@/services/newsService';
-import { extractLocationsFromNews } from '@/utils/locationUtils';
+import { extractLocationsFromNews, Location } from '@/utils/locationUtils';
 import { useToast } from '@/hooks/use-toast';
 
 const MapPage = () => {
@@ -15,7 +15,7 @@ const MapPage = () => {
   const { data, isLoading, isError, error } = useNews(searchQuery);
   const { toast } = useToast();
   
-  const locations = data?.articles ? extractLocationsFromNews(data.articles) : [];
+  const locations: Location[] = data?.articles ? extractLocationsFromNews(data.articles) : [];
   
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -65,7 +65,7 @@ const MapPage = () => {
         </form>
         
         {/* Map Component */}
-        <Map locations={locations} isLoading={isLoading} />
+        <MapComponent locations={locations} isLoading={isLoading} />
         
         {/* Map Info */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">

@@ -1,13 +1,14 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import L from 'leaflet';
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { ChevronRight, MapPin } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { LocationPoint } from '@/utils/locationUtils';
 
 // Fix for the default icon in Leaflet
 delete (L.Icon.Default.prototype as any)._getIconUrl;
@@ -29,7 +30,8 @@ const customIcon = new L.Icon({
 });
 
 // Types
-interface Location {
+export interface Location {
+  id: string;
   lat: number;
   lng: number;
   name: string;
@@ -43,25 +45,30 @@ interface MapProps {
   isLoading: boolean;
 }
 
-const Map: React.FC<MapProps> = ({ locations, isLoading }) => {
-  const [selectedLocation, setSelectedLocation] = useState<Location | null>(null);
-  const mapRef = useRef<L.Map | null>(null);
-  const navigate = useNavigate();
+// Helper component to handle map initialization and methods
+const MapController = ({ selectedLocation }: { selectedLocation: Location | null }) => {
+  const map = useMap();
   
-  // Center map on India
-  const defaultCenter: [number, number] = [20.5937, 78.9629];
-  const defaultZoom = 5;
-
-  // When a location is selected, center the map on it
   useEffect(() => {
-    if (selectedLocation && mapRef.current) {
-      mapRef.current.setView(
+    if (selectedLocation) {
+      map.setView(
         [selectedLocation.lat, selectedLocation.lng],
         10,
         { animate: true }
       );
     }
-  }, [selectedLocation]);
+  }, [selectedLocation, map]);
+  
+  return null;
+};
+
+const Map: React.FC<MapProps> = ({ locations, isLoading }) => {
+  const [selectedLocation, setSelectedLocation] = useState<Location | null>(null);
+  const navigate = useNavigate();
+  
+  // Center map on India
+  const defaultCenter: [number, number] = [20.5937, 78.9629];
+  const defaultZoom = 5;
 
   const handleViewArticle = (articleIndex: number) => {
     navigate(`/news/${articleIndex}`);
@@ -76,24 +83,22 @@ const Map: React.FC<MapProps> = ({ locations, isLoading }) => {
           <div className="md:col-span-2 h-full">
             <MapContainer
               style={{ height: '100%', width: '100%' }}
-              center={defaultCenter}
-              zoom={defaultZoom}
+              defaultCenter={defaultCenter}
+              defaultZoom={defaultZoom}
               zoomControl={true}
               scrollWheelZoom={false}
-              whenCreated={(map) => {
-                mapRef.current = map;
-              }}
             >
               <TileLayer
                 url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                 attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
               />
               
+              <MapController selectedLocation={selectedLocation} />
+              
               {locations.map((location, idx) => (
                 <Marker
                   key={`${location.name}-${idx}`}
                   position={[location.lat, location.lng]}
-                  icon={customIcon}
                   eventHandlers={{
                     click: () => setSelectedLocation(location),
                   }}
