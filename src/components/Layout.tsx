@@ -6,6 +6,7 @@ import { cn } from '@/lib/utils';
 import { useLocalStorage } from '@/hooks/use-local-storage';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
+import { useNews } from '@/services/newsService';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -16,7 +17,8 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   const location = useLocation();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [savedArticles] = useLocalStorage<string[]>('savedArticles', []);
+  const [savedArticles, setSavedArticles] = useLocalStorage<string[]>('savedArticles', []);
+  const { data } = useNews('');
   
   const navLinks = [
     { name: 'News', path: '/news', icon: Newspaper },
@@ -33,11 +35,22 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         title: "No saved articles",
         description: "You haven't saved any articles yet.",
       });
-    } else {
-      toast({
-        title: `${savedArticles.length} articles saved`,
-        description: "Click on any article to view it.",
-      });
+      return;
+    }
+    
+    if (data?.articles) {
+      // Find the first saved article and navigate to it
+      const savedArticleIds = savedArticles.map(id => parseInt(id, 10)).filter(id => !isNaN(id));
+      
+      if (savedArticleIds.length > 0) {
+        toast({
+          title: `${savedArticles.length} articles saved`,
+          description: "Showing your saved articles.",
+        });
+        
+        // Navigate to the first saved article
+        navigate(`/news/${savedArticleIds[0]}`);
+      }
     }
   };
 

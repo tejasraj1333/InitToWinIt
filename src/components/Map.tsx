@@ -1,131 +1,129 @@
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import L from 'leaflet';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
-import { Card, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
+import { Location } from '@/utils/locationUtils';
+import { useNavigate } from 'react-router-dom';
 
-// Fix the missing leaflet marker icon issue
-import icon from 'leaflet/dist/images/marker-icon.png';
-import iconShadow from 'leaflet/dist/images/marker-shadow.png';
+// Fix Leaflet marker icon issue
+import markerIcon2x from 'leaflet/dist/images/marker-icon-2x.png';
+import markerIcon from 'leaflet/dist/images/marker-icon.png';
+import markerShadow from 'leaflet/dist/images/marker-shadow.png';
 
-let DefaultIcon = L.icon({
-  iconUrl: icon,
-  shadowUrl: iconShadow,
-  iconSize: [25, 41],
-  iconAnchor: [12, 41]
+delete (L.Icon.Default.prototype as any)._getIconUrl;
+L.Icon.Default.mergeOptions({
+  iconUrl: markerIcon,
+  iconRetinaUrl: markerIcon2x,
+  shadowUrl: markerShadow,
 });
 
-L.Marker.prototype.options.icon = DefaultIcon;
-
-// Define the location type
-export interface MapLocation {
-  id: string;
-  lat: number;
-  lng: number;
-  name?: string;
-  title: string;
-  description: string;
-  url?: string;
-  imageUrl?: string;
-}
+// Create custom marker icon
+const createCustomIcon = (color: string) => {
+  return new L.Icon({
+    iconUrl: markerIcon,
+    iconRetinaUrl: markerIcon2x,
+    iconSize: [25, 41],
+    iconAnchor: [12, 41],
+    popupAnchor: [1, -34],
+    shadowUrl: markerShadow,
+    shadowSize: [41, 41],
+    className: `marker-icon-${color}`,
+  });
+};
 
 interface MapProps {
-  locations: MapLocation[];
-  height?: string;
-  width?: string;
-  onMarkerClick?: (location: MapLocation) => void;
+  locations: Location[];
+  center?: [number, number];
+  zoom?: number;
+  showPopupOnHover?: boolean;
 }
 
-const DEFAULT_CENTER: [number, number] = [20.5937, 78.9629]; // Center of India
+const defaultCenter: [number, number] = [20.5937, 78.9629]; // Center of India
 
-const Map: React.FC<MapProps> = ({
+const MapComponent: React.FC<MapProps> = ({
   locations = [],
-  height = '500px',
-  width = '100%',
-  onMarkerClick
+  center = defaultCenter,
+  zoom = 5,
+  showPopupOnHover = false
 }) => {
-  const [selectedLocation, setSelectedLocation] = useState<MapLocation | null>(null);
-  const [map, setMap] = useState<L.Map | null>(null);
+  const navigate = useNavigate();
+  const mapCenter = center || defaultCenter;
 
-  // Center map on locations if available
+  // Set up map container style
+  const mapContainerStyle = {
+    height: '500px',
+    width: '100%',
+  };
+
+  // Define different marker colors based on location type or other criteria
+  const getMarkerIcon = (location: Location) => {
+    // Here you can customize icon based on location attributes
+    return createCustomIcon('blue');
+  };
+
+  // Set up the map instance reference
+  const [mapInstance, setMapInstance] = React.useState<L.Map | null>(null);
+  
+  // Handle map creation
+  const handleMapCreated = (map: L.Map) => {
+    setMapInstance(map);
+  };
+
+  // Update map view if center or zoom changes
   useEffect(() => {
-    if (map && locations.length > 0) {
-      const bounds = L.latLngBounds(locations.map(loc => [loc.lat, loc.lng]));
-      map.fitBounds(bounds, { padding: [50, 50] });
+    if (mapInstance) {
+      mapInstance.setView(mapCenter, zoom);
     }
-  }, [map, locations]);
-
-  const handleMarkerClick = (location: MapLocation) => {
-    setSelectedLocation(location);
-    if (onMarkerClick) {
-      onMarkerClick(location);
-    }
-  };
-
-  const handleOpenArticle = (url?: string) => {
-    if (url) {
-      window.open(url, '_blank');
-    }
-  };
+  }, [mapInstance, mapCenter, zoom]);
 
   return (
-    <Card className="shadow-lg">
-      <CardContent className="p-0 overflow-hidden rounded-lg">
-        <MapContainer
-          style={{ height, width }}
-          center={DEFAULT_CENTER}
-          zoom={5}
-          zoomControl={true}
-          scrollWheelZoom={true}
-          whenCreated={setMap}
+    <MapContainer
+      style={mapContainerStyle}
+      center={mapCenter}
+      zoom={zoom}
+      zoomControl={true}
+      scrollWheelZoom={true}
+      whenReady={(map) => handleMapCreated(map.target)}
+    >
+      <TileLayer
+        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+      />
+      
+      {locations.map((location, index) => (
+        <Marker 
+          key={`${location.name}-${index}`}
+          position={[location.lat, location.lng]}
+          icon={getMarkerIcon(location)}
+          eventHandlers={{
+            click: () => {
+              if (location.articleIndex !== undefined) {
+                navigate(`/news/${location.articleIndex}`);
+              }
+            },
+          }}
         >
-          <TileLayer
-            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-          />
-          
-          {locations.map((location) => (
-            <Marker
-              key={location.id}
-              position={[location.lat, location.lng]}
-              eventHandlers={{
-                click: () => handleMarkerClick(location),
-              }}
-            >
-              <Popup>
-                <div className="max-w-[250px]">
-                  {location.imageUrl && (
-                    <img 
-                      src={location.imageUrl} 
-                      alt={location.title} 
-                      className="w-full h-32 object-cover mb-2 rounded"
-                      onError={(e) => {
-                        (e.target as HTMLImageElement).src = 'https://via.placeholder.com/150';
-                      }}
-                    />
-                  )}
-                  <h3 className="font-semibold text-base mb-1">{location.title}</h3>
-                  <p className="text-xs mb-2 line-clamp-3">{location.description}</p>
-                  {location.url && (
-                    <Button 
-                      size="sm" 
-                      variant="outline" 
-                      className="w-full text-xs" 
-                      onClick={() => handleOpenArticle(location.url)}
-                    >
-                      Read Article
-                    </Button>
-                  )}
-                </div>
-              </Popup>
-            </Marker>
-          ))}
-        </MapContainer>
-      </CardContent>
-    </Card>
+          <Popup>
+            <div className="min-w-[200px]">
+              <h3 className="font-medium text-base mb-1">{location.name}</h3>
+              {location.description && (
+                <p className="text-sm mb-2">{location.description}</p>
+              )}
+              {location.articleIndex !== undefined && (
+                <button
+                  className="text-sm text-primary hover:underline"
+                  onClick={() => navigate(`/news/${location.articleIndex}`)}
+                >
+                  Read Related News
+                </button>
+              )}
+            </div>
+          </Popup>
+        </Marker>
+      ))}
+    </MapContainer>
   );
 };
 
-export default Map;
+export default MapComponent;
