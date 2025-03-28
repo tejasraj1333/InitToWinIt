@@ -1,4 +1,3 @@
-
 import React from 'react';
 import Layout from '@/components/Layout';
 import NewsCard from '@/components/NewsCard';
@@ -19,6 +18,7 @@ const featuredNews = {
   publishedAt: '2 hours ago',
   commentsCount: 24,
   likesCount: 87,
+  url: 'https://example.com/news/community-center',
 };
 
 const recentNews = [
@@ -32,6 +32,7 @@ const recentNews = [
     publishedAt: '4 hours ago',
     commentsCount: 12,
     likesCount: 45,
+    url: 'https://example.com/news/farmers-market',
   },
   {
     id: '3',
@@ -43,6 +44,7 @@ const recentNews = [
     publishedAt: '7 hours ago',
     commentsCount: 8,
     likesCount: 32,
+    url: 'https://example.com/news/school-board',
   },
   {
     id: '4',
@@ -54,6 +56,7 @@ const recentNews = [
     publishedAt: '9 hours ago',
     commentsCount: 32,
     likesCount: 12,
+    url: 'https://example.com/news/traffic-advisory',
   },
 ];
 

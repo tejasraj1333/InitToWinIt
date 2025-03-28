@@ -20,9 +20,7 @@ let DefaultIcon = L.icon({
   iconAnchor: [12, 41]
 });
 
-L.Marker.prototype.options.icon = DefaultIcon;
-
-// Component to recenter map when locations change
+// MapController component to recenter map when locations change
 const MapController = ({ center }: { center: [number, number] }) => {
   const map = useMap();
   map.setView(center, 5);
@@ -89,8 +87,7 @@ const Map: React.FC<MapProps> = ({ locations, isLoading = false }) => {
         {!isLoading && locations.map((point) => (
           <Marker 
             key={point.id}
-            position={[point.lat, point.lng] as [number, number]}
-            icon={createCustomIcon()}
+            position={[point.lat, point.lng]}
             eventHandlers={{
               click: () => handlePointClick(point)
             }}
@@ -121,8 +118,8 @@ const Map: React.FC<MapProps> = ({ locations, isLoading = false }) => {
             size="sm" 
             className="flex items-center justify-center h-8 w-8 p-0"
             onClick={() => {
-              const map = document.querySelector('.leaflet-container')?._leaflet_map;
-              if (map) map.zoomIn();
+              const map = document.querySelector('.leaflet-container') as any;
+              if (map && map._leaflet_map) map._leaflet_map.zoomIn();
             }}
           >+</Button>
           <Button 
@@ -130,8 +127,8 @@ const Map: React.FC<MapProps> = ({ locations, isLoading = false }) => {
             size="sm" 
             className="flex items-center justify-center h-8 w-8 p-0"
             onClick={() => {
-              const map = document.querySelector('.leaflet-container')?._leaflet_map;
-              if (map) map.zoomOut();
+              const map = document.querySelector('.leaflet-container') as any;
+              if (map && map._leaflet_map) map._leaflet_map.zoomOut();
             }}
           >-</Button>
         </div>
