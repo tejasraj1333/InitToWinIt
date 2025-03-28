@@ -1,8 +1,10 @@
 
 import React from 'react';
-import { MessageSquare, ThumbsUp, Share2, Clock, ExternalLink } from 'lucide-react';
+import { MessageSquare, ThumbsUp, Share2, Clock, ExternalLink, BookmarkPlus, Bookmark, MessageCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
+import { useNavigate } from 'react-router-dom';
+import { useLocalStorage } from '@/hooks/use-local-storage';
 
 interface NewsCardProps {
   id: string;
@@ -32,17 +34,34 @@ const NewsCard: React.FC<NewsCardProps> = ({
   url
 }) => {
   const isFeatured = variant === 'featured';
+  const navigate = useNavigate();
+  const [savedArticles, setSavedArticles] = useLocalStorage<string[]>('savedArticles', []);
+  const isSaved = savedArticles.includes(id);
   
   const handleOpenArticle = () => {
     window.open(url, '_blank');
   };
 
+  const handleViewDetails = () => {
+    navigate(`/news/${id}`);
+  };
+
+  const toggleSaveArticle = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (isSaved) {
+      setSavedArticles(savedArticles.filter(articleId => articleId !== id));
+    } else {
+      setSavedArticles([...savedArticles, id]);
+    }
+  };
+
   return (
     <div 
       className={cn(
-        "overflow-hidden rounded-2xl card-hover glass-card",
+        "overflow-hidden rounded-2xl card-hover glass-card cursor-pointer",
         isFeatured ? "col-span-full md:col-span-2 md:row-span-2" : ""
       )}
+      onClick={handleViewDetails}
     >
       <div className="block h-full">
         <div className="flex flex-col h-full">
@@ -94,13 +113,24 @@ const NewsCard: React.FC<NewsCardProps> = ({
           <div className="px-5 py-3 bg-muted/50 border-t border-border flex justify-between items-center">
             <span className="text-sm font-medium">{source}</span>
             <div className="flex gap-2">
-              <Button variant="ghost" size="sm" className="p-1" onClick={handleOpenArticle}>
+              <Button variant="ghost" size="sm" className="p-1" onClick={(e) => {
+                e.stopPropagation();
+                handleOpenArticle();
+              }}>
                 <ExternalLink className="h-4 w-4" />
                 <span className="sr-only">Open Article</span>
               </Button>
+              <Button variant="ghost" size="sm" className="p-1" onClick={toggleSaveArticle}>
+                {isSaved ? (
+                  <Bookmark className="h-4 w-4 text-primary" />
+                ) : (
+                  <BookmarkPlus className="h-4 w-4" />
+                )}
+                <span className="sr-only">{isSaved ? 'Unsave' : 'Save'}</span>
+              </Button>
               <Button variant="ghost" size="sm" className="p-1">
-                <Share2 className="h-4 w-4" />
-                <span className="sr-only">Share</span>
+                <MessageCircle className="h-4 w-4" />
+                <span className="sr-only">Comment</span>
               </Button>
             </div>
           </div>
