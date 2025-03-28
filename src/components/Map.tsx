@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import { Card } from '@/components/ui/card';
@@ -13,6 +13,7 @@ import { LocationPoint } from '@/utils/locationUtils';
 import icon from 'leaflet/dist/images/marker-icon.png';
 import iconShadow from 'leaflet/dist/images/marker-shadow.png';
 
+// Set up default icon for Leaflet markers
 let DefaultIcon = L.icon({
   iconUrl: icon,
   shadowUrl: iconShadow,
@@ -20,10 +21,15 @@ let DefaultIcon = L.icon({
   iconAnchor: [12, 41]
 });
 
+L.Marker.prototype.options.icon = DefaultIcon;
+
 // MapController component to recenter map when locations change
 const MapController = ({ center }: { center: [number, number] }) => {
   const map = useMap();
-  map.setView(center, 5);
+  // Only update the view if the map is initialized
+  if (map) {
+    map.setView(center, 5);
+  }
   return null;
 };
 
@@ -37,7 +43,7 @@ const Map: React.FC<MapProps> = ({ locations, isLoading = false }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [mapCenter, setMapCenter] = useState<[number, number]>([20.5937, 78.9629]); // Center of India
 
-  // Custom marker component
+  // Create a custom icon for news markers
   const createCustomIcon = () => {
     return L.divIcon({
       className: 'custom-marker',
@@ -67,19 +73,40 @@ const Map: React.FC<MapProps> = ({ locations, isLoading = false }) => {
   const handleCloseModal = () => {
     setIsModalOpen(false);
   };
+  
+  // Handle zoom in button click
+  const handleZoomIn = () => {
+    const mapElement = document.querySelector('.leaflet-container');
+    if (mapElement) {
+      const leafletMap = (mapElement as any)._leaflet_map;
+      if (leafletMap) {
+        leafletMap.zoomIn();
+      }
+    }
+  };
+  
+  // Handle zoom out button click
+  const handleZoomOut = () => {
+    const mapElement = document.querySelector('.leaflet-container');
+    if (mapElement) {
+      const leafletMap = (mapElement as any)._leaflet_map;
+      if (leafletMap) {
+        leafletMap.zoomOut();
+      }
+    }
+  };
 
   return (
     <div className="relative w-full h-[calc(100vh-16rem)] min-h-[400px] rounded-lg overflow-hidden border border-border">
       {/* Map Container */}
       <MapContainer 
         style={{ height: '100%', width: '100%' }}
-        center={mapCenter}
         zoom={5}
         zoomControl={false}
+        scrollWheelZoom={true}
       >
         <TileLayer
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         />
         
         <MapController center={mapCenter} />
@@ -117,19 +144,13 @@ const Map: React.FC<MapProps> = ({ locations, isLoading = false }) => {
             variant="outline" 
             size="sm" 
             className="flex items-center justify-center h-8 w-8 p-0"
-            onClick={() => {
-              const map = document.querySelector('.leaflet-container') as any;
-              if (map && map._leaflet_map) map._leaflet_map.zoomIn();
-            }}
+            onClick={handleZoomIn}
           >+</Button>
           <Button 
             variant="outline" 
             size="sm" 
             className="flex items-center justify-center h-8 w-8 p-0"
-            onClick={() => {
-              const map = document.querySelector('.leaflet-container') as any;
-              if (map && map._leaflet_map) map._leaflet_map.zoomOut();
-            }}
+            onClick={handleZoomOut}
           >-</Button>
         </div>
       </div>

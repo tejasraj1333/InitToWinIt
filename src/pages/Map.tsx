@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Layout from '@/components/Layout';
 import Map from '@/components/Map';
 import { MapPin, Search, Loader2 } from 'lucide-react';
@@ -22,13 +22,16 @@ const MapPage = () => {
     setSearchQuery(searchText);
   };
 
-  if (isError) {
-    toast({
-      variant: "destructive",
-      title: "Error loading news",
-      description: error instanceof Error ? error.message : "Something went wrong",
-    });
-  }
+  // Use useEffect to show error toast only when error state changes
+  useEffect(() => {
+    if (isError) {
+      toast({
+        variant: "destructive",
+        title: "Error loading news",
+        description: error instanceof Error ? error.message : "Something went wrong",
+      });
+    }
+  }, [isError, error, toast]);
 
   return (
     <Layout>

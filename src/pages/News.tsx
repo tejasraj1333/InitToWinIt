@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Layout from '@/components/Layout';
 import NewsCard from '@/components/NewsCard';
 import { Input } from '@/components/ui/input';
@@ -19,13 +19,16 @@ const News = () => {
     setSearchQuery(searchText);
   };
 
-  if (isError) {
-    toast({
-      variant: "destructive",
-      title: "Error loading news",
-      description: error instanceof Error ? error.message : "Something went wrong",
-    });
-  }
+  // Use useEffect to show error toast only when error state changes
+  useEffect(() => {
+    if (isError) {
+      toast({
+        variant: "destructive",
+        title: "Error loading news",
+        description: error instanceof Error ? error.message : "Something went wrong",
+      });
+    }
+  }, [isError, error, toast]);
 
   return (
     <Layout>
@@ -73,7 +76,7 @@ const News = () => {
                 category={article.source.name || "News"}
                 image={article.urlToImage || undefined}
                 source={article.source.name || "Unknown Source"}
-                publishedAt={new Date(article.publishedAt).toRelativeTimeString()}
+                publishedAt={new Date(article.publishedAt).toLocaleDateString()}
                 commentsCount={0}
                 likesCount={0}
                 url={article.url}
