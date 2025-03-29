@@ -1,19 +1,22 @@
 
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Menu, X, Newspaper, Map, Bookmark } from 'lucide-react';
+import { Menu, X, Newspaper, Map, Bookmark, Search } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useLocalStorage } from '@/hooks/use-local-storage';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { useNews } from '@/services/newsService';
+import { Input } from '@/components/ui/input';
 
 interface LayoutProps {
   children: React.ReactNode;
+  onSearch?: (query: string) => void;
 }
 
-const Layout: React.FC<LayoutProps> = ({ children }) => {
+const Layout: React.FC<LayoutProps> = ({ children, onSearch }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [searchText, setSearchText] = useState('');
   const location = useLocation();
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -34,6 +37,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
       toast({
         title: "No saved articles",
         description: "You haven't saved any articles yet.",
+        duration: 3000,
       });
       return;
     }
@@ -46,11 +50,21 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         toast({
           title: `${savedArticles.length} articles saved`,
           description: "Showing your saved articles.",
+          duration: 3000,
         });
         
         // Navigate to the first saved article
         navigate(`/news/${savedArticleIds[0]}`);
       }
+    }
+  };
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (onSearch) {
+      onSearch(searchText);
+    } else {
+      navigate(`/news?q=${encodeURIComponent(searchText)}`);
     }
   };
 
@@ -77,6 +91,23 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
               </span>
             </Link>
           </div>
+          
+          {/* Search Bar */}
+          <form onSubmit={handleSearch} className="hidden md:flex flex-1 max-w-md mx-auto px-4">
+            <div className="relative flex w-full">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+              <Input
+                type="text"
+                placeholder="Search news articles..."
+                className="pl-9 pr-4 py-2 w-full"
+                value={searchText}
+                onChange={(e) => setSearchText(e.target.value)}
+              />
+              <Button type="submit" size="sm" className="ml-2">
+                Search
+              </Button>
+            </div>
+          </form>
           
           {/* Desktop Navigation */}
           <nav className="hidden lg:flex items-center space-x-1">
@@ -116,6 +147,23 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         {isMobileMenuOpen && (
           <div className="lg:hidden animate-slide-down">
             <nav className="container mx-auto px-4 py-4 flex flex-col space-y-2 bg-background border-t border-border">
+              {/* Mobile Search */}
+              <form onSubmit={handleSearch} className="mb-2">
+                <div className="relative flex">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+                  <Input
+                    type="text"
+                    placeholder="Search news articles..."
+                    className="pl-9 pr-4 py-2 w-full"
+                    value={searchText}
+                    onChange={(e) => setSearchText(e.target.value)}
+                  />
+                  <Button type="submit" size="sm" className="ml-2">
+                    Search
+                  </Button>
+                </div>
+              </form>
+              
               {navLinks.map((link) => (
                 <Link 
                   key={link.path} 
