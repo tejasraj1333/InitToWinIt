@@ -1,14 +1,14 @@
-
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Menu, X, Newspaper, Map, Bookmark, Search } from 'lucide-react';
+import { Menu, X, Newspaper, Bookmark, Search } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useLocalStorage } from '@/hooks/use-local-storage';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { useNews } from '@/services/newsService';
 import { Input } from '@/components/ui/input';
-
+import LocationOnIcon from "@mui/icons-material/LocationOn";
+import RecordVoiceOverIcon from '@mui/icons-material/RecordVoiceOver';
 interface LayoutProps {
   children: React.ReactNode;
   onSearch?: (query: string) => void;
@@ -24,8 +24,9 @@ const Layout: React.FC<LayoutProps> = ({ children, onSearch }) => {
   const { data } = useNews('');
   
   const navLinks = [
-    { name: 'News', path: '/news', icon: Newspaper },
-    { name: 'Map', path: '/map', icon: Map },
+    { path: '/news', icon: <Newspaper className="h-5 w-5" /> },
+    { path: '/map', icon: <LocationOnIcon fontSize="large" /> },  
+    { path: '/publisher',icon: <RecordVoiceOverIcon fontSize="large" /> },
   ];
   
   const toggleMobileMenu = () => {
@@ -86,9 +87,7 @@ const Layout: React.FC<LayoutProps> = ({ children, onSearch }) => {
               )}
             </button>
             <Link to="/" className="flex items-center">
-              <span className="font-display text-xl font-semibold bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent">
-                India News
-              </span>
+              <img src="/logo3.png" alt="logo" height={60} width={198} />
             </Link>
           </div>
           
@@ -120,7 +119,7 @@ const Layout: React.FC<LayoutProps> = ({ children, onSearch }) => {
                   location.pathname === link.path && "active"
                 )}
               >
-                {link.name}
+                {link.icon}
               </Link>
             ))}
           </nav>
@@ -133,7 +132,7 @@ const Layout: React.FC<LayoutProps> = ({ children, onSearch }) => {
               className="p-2 rounded-full hover:bg-muted transition-colors relative"
               onClick={handleSavedArticlesClick}
             >
-              <Bookmark className="h-5 w-5" />
+              <Bookmark style={{ height: '24px', width: '24px' }} />
               {savedArticles.length > 0 && (
                 <span className="absolute -top-1 -right-1 bg-primary text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">
                   {savedArticles.length}
@@ -176,8 +175,7 @@ const Layout: React.FC<LayoutProps> = ({ children, onSearch }) => {
                   )}
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
-                  <link.icon className="h-5 w-5" />
-                  <span>{link.name}</span>
+                  {link.icon}
                 </Link>
               ))}
             </nav>
@@ -189,51 +187,6 @@ const Layout: React.FC<LayoutProps> = ({ children, onSearch }) => {
       <main className="flex-1 container mx-auto px-4 py-6 animate-fade-in">
         {children}
       </main>
-      
-      {/* Footer */}
-      <footer className="bg-muted py-6 border-t border-border">
-        <div className="container mx-auto px-4">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div>
-              <h3 className="font-display text-lg font-semibold mb-4">India News</h3>
-              <p className="text-muted-foreground text-sm">
-                Staying informed with the latest news and events across India.
-              </p>
-            </div>
-            <div>
-              <h4 className="font-medium mb-4">Quick Links</h4>
-              <div className="flex flex-col space-y-2">
-                {navLinks.map((link) => (
-                  <Link 
-                    key={link.path} 
-                    to={link.path}
-                    className="text-muted-foreground hover:text-foreground transition-colors"
-                  >
-                    {link.name}
-                  </Link>
-                ))}
-              </div>
-            </div>
-            <div>
-              <h4 className="font-medium mb-4">About</h4>
-              <div className="flex flex-col space-y-2">
-                <Link to="#" className="text-muted-foreground hover:text-foreground transition-colors">
-                  Privacy Policy
-                </Link>
-                <Link to="#" className="text-muted-foreground hover:text-foreground transition-colors">
-                  Terms of Service
-                </Link>
-                <Link to="#" className="text-muted-foreground hover:text-foreground transition-colors">
-                  Contact Us
-                </Link>
-              </div>
-            </div>
-          </div>
-          <div className="mt-8 pt-4 border-t border-border/50 text-center text-sm text-muted-foreground">
-            &copy; {new Date().getFullYear()} India News. All rights reserved.
-          </div>
-        </div>
-      </footer>
     </div>
   );
 };

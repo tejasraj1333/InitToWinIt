@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -8,6 +7,7 @@ import News from "./pages/News";
 import Map from "./pages/Map";
 import NotFound from "./pages/NotFound";
 import NewsDetail from "./pages/NewsDetail";
+import Publisher from "./pages/Publisher"; // Import the Publisher component
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -29,6 +29,7 @@ const App = () => (
           <Route path="/news" element={<News />} />
           <Route path="/map" element={<Map />} />
           <Route path="/news/:id" element={<NewsDetail />} />
+          <Route path="/publisher" element={<Publisher />} /> {/* Add the Publisher route */}
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

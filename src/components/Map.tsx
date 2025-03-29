@@ -1,5 +1,4 @@
-
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useState } from 'react';
 import L from 'leaflet';
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
@@ -63,7 +62,31 @@ const MapComponent: React.FC<MapProps> = ({
   onMarkerClick
 }) => {
   const navigate = useNavigate();
-  const mapCenter = center || defaultCenter;
+  const [currentLocation, setCurrentLocation] = useState<[number, number] | null>(null);
+  const [filteredLocations, setFilteredLocations] = useState<Location[]>([]);
+
+  useEffect(() => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const { latitude, longitude } = position.coords;
+          setCurrentLocation([latitude, longitude]);
+
+          // Filter out the Hyderabad marker (or any specific locations you want to exclude)
+          const filtered = locations.filter(location => location.name !== 'Hyderabad');
+          setFilteredLocations(filtered);
+        },
+        (error) => {
+          console.error("Error fetching geolocation", error);
+        }
+      );
+    } else {
+      console.warn("Geolocation is not supported by this browser.");
+    }
+  }, [locations]);
+
+  // Set center to currentLocation if available, otherwise use defaultCenter
+  const mapCenter = currentLocation || center;
 
   // Set up map container style
   const mapContainerStyle = {
@@ -75,6 +98,13 @@ const MapComponent: React.FC<MapProps> = ({
   const getMarkerIcon = (location: Location) => {
     // Here you can customize icon based on location attributes
     return createCustomIcon('blue');
+  };
+
+  // Function to fetch news based on current location
+  const fetchNewsForLocation = (lat: number, lng: number) => {
+    // Here you would call an API or use logic to get news based on location
+    // For example, you could use a location-based API to fetch relevant news
+    return `News related to location (${lat}, ${lng})`;
   };
 
   return (
@@ -89,7 +119,7 @@ const MapComponent: React.FC<MapProps> = ({
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
       />
       
-      {locations.map((location, index) => (
+      {filteredLocations.map((location, index) => (
         <Marker 
           key={`${location.name}-${index}`}
           position={[location.lat, location.lng]}
@@ -122,6 +152,19 @@ const MapComponent: React.FC<MapProps> = ({
           </Popup>
         </Marker>
       ))}
+
+      {/* Marker for the current location */}
+      {currentLocation && (
+        <Marker position={currentLocation}>
+          <Popup>
+            <div className="min-w-[200px]">
+              <h3 className="font-medium text-base mb-1">Your Location</h3>
+              <p className="text-sm">This is where you are right now!</p>
+              <p className="text-sm">{fetchNewsForLocation(currentLocation[0], currentLocation[1])}</p>
+            </div>
+          </Popup>
+        </Marker>
+      )}
     </MapContainer>
   );
 };

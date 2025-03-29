@@ -109,16 +109,7 @@ const NewsCard: React.FC<NewsCardProps> = ({
               {summary}
             </p>
             <div className="flex justify-between items-center text-sm text-muted-foreground">
-              <div className="flex items-center space-x-4">
-                <div className="flex items-center">
-                  <MessageSquare className="h-4 w-4 mr-1" />
-                  <span>{commentsCount}</span>
-                </div>
-                <div className="flex items-center">
-                  <ThumbsUp className="h-4 w-4 mr-1" />
-                  <span>{likesCount}</span>
-                </div>
-              </div>
+              
               <div className="flex items-center">
                 <Clock className="h-4 w-4 mr-1" />
                 <span>{publishedAt}</span>

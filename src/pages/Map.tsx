@@ -54,9 +54,6 @@ const MapPage = () => {
           <h1 className="font-display text-3xl md:text-4xl font-bold mb-4">
             News Map
           </h1>
-          <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-            Explore news stories from across India on the map
-          </p>
         </div>
         
         {/* Search Bar */}

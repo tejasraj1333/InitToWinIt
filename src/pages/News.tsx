@@ -152,11 +152,9 @@ const News = () => {
       <div className="space-y-6 animate-fade-in">
         <div className="text-center mb-6">
           <h1 className="font-display text-3xl md:text-4xl font-bold mb-4">
-            India News
+            THE INDIA TIMES
           </h1>
-          <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-            Stay informed with the latest news and updates from India
-          </p>
+          
         </div>
         
         <div className="mb-4">
