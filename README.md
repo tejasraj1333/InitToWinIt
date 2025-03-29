@@ -1,69 +1,98 @@
-# Welcome to your Lovable project
+# The Chātaka
 
-## Project info
+## Transforming Local Engagement
+The Chātaka is the ultimate platform for local residents to stay informed, engage in meaningful community discussions, and explore neighborhood events—all in one seamless experience. Our mission is to connect people with real-time, location-based news, dynamic conversations, and hyperlocal event listings, with **multilingual support and AI-driven news summarization**.
 
-**URL**: https://lovable.dev/projects/9d3ed537-4c55-4a80-9fbb-658da4b0949b
+---
 
-## How can I edit this code?
+## Who’s It For?
+The Chātaka is designed for:
+✅ Local residents seeking up-to-date neighborhood news, available in multiple languages.
+✅ Community members interested in discussions and civic engagement.
+✅ Event organizers looking to promote local happenings.
 
-There are several ways of editing your application.
+---
 
-**Use Lovable**
+## Core Features
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/9d3ed537-4c55-4a80-9fbb-658da4b0949b) and start prompting.
+### *Home Screen*
+- *Intuitive Navigation* – A sleek hamburger menu with quick access to core features.
+- *AI-Powered Hyperlocal News Feed* – Personalized articles based on user location & interests.
+- *Trending Community Discussions* – Highlights the most engaging conversations.
+- *One-Tap Access* – Quick links to News, Forums, and Events.
+- *Smart Summaries* – AI-generated brief summaries of news articles.
 
-Changes made via Lovable will be committed automatically to this repo.
+###  *News Feed 📰*
+- *Smart Filtering* – Customize by category (e.g., Safety, Events) and location.
+- *Interactive Articles* – Read full news stories with options to comment, share, and report.
+- *Seamless Discussion Links* – Connect relevant news to ongoing community conversations.
+- *Multilingual News* – NLP-powered translation for reading news in the preferred language.
+- *Location-Based Updates* – Real-time news aggregation based on current user location.
 
-**Use your preferred IDE**
+### *Interactive Map 🗌*
+- *Dynamic Map View* – Showcases news hotspots, discussions, and event locations.
+- *Customizable Filters* – View content by category and geographic area.
+- *Real-Time Event Tracking* – Explore upcoming events in the neighborhood.
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+### *User Profile 👤*
+- *Personalized Dashboard* – View your activity, posts, and comments in one place.
+- *Profile Customization* – Update bio, profile picture, and preferences.
+- *Advanced Privacy Controls* – Manage notification preferences and location settings.
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+###  *Smart Notifications*
+- *Real-Time Alerts* – Stay updated on urgent news, discussions, and events.
+- *Customizable Notifications* – Set your preferences for what matters most.
 
-Follow these steps:
+---
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+## Design Philosophy
+- *Vibrant UI* – Friendly color scheme for a welcoming experience.
+- *Accessibility-First* – Readable fonts (e.g., Open Sans) and high-contrast elements.
+- *Fluid Responsiveness* – Optimized for all screen sizes and devices.
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+---
 
-# Step 3: Install the necessary dependencies.
-npm i
+## Tech Stack
+🔹 *Frontend:* React.js (Web) 
+🔹 *Backend:* Node.js (Express.js)
+🔹 *Database:* MongoDB 
+🔹 *APIs:* NewsAPI for fetching hyperlocal news
+🔹 *NLP Services:* AI-powered translation & summarization
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
-```
+---
 
-**Edit a file directly in GitHub**
+## ⚙️ Installation & Setup
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+1⃣ Clone the repository:
+   ```sh
+   git clone https://github.com/yourusername/the-chataka.git
+   cd the-chataka
+   ```
+   
+2⃣ Install dependencies:
+   ```sh
+   npm install  
+   ```
+   
+3⃣ Start the backend server:
+   ```sh
+   cd server
+   npm start 
+   ```
+34 Start the frontend server:
+   ```sh
+   cd client
+   npm run dev 
+   ```
+---
 
-**Use GitHub Codespaces**
+## 💡 How to Contribute
+Want to make The Chātaka even better? Follow these steps:
+1. Fork the repository & create a new feature branch.
+2. Make your changes and commit with clear messages.
+3. Open a Pull Request for review & approval.
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+---
 
-## What technologies are used for this project?
+**The Chātaka– Your Neighborhood, Your Voice!**
 
-This project is built with .
-
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/9d3ed537-4c55-4a80-9fbb-658da4b0949b) and click on Share -> Publish.
-
-## I want to use a custom domain - is that possible?
-
-We don't support custom domains (yet). If you want to deploy your project under your own domain then we recommend using Netlify. Visit our docs for more details: [Custom domains](https://docs.lovable.dev/tips-tricks/custom-domain/)
