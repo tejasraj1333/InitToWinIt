@@ -61,30 +61,6 @@ The Chātaka is designed for:
 
 ---
 
-## ⚙️ Installation & Setup
-
-1⃣ Clone the repository:
-   ```sh
-   git clone https://github.com/yourusername/the-chataka.git
-   cd the-chataka
-   ```
-   
-2⃣ Install dependencies:
-   ```sh
-   npm install  
-   ```
-   
-3⃣ Start the backend server:
-   ```sh
-   cd server
-   npm start 
-   ```
-34 Start the frontend server:
-   ```sh
-   cd client
-   npm run dev 
-   ```
----
 
 ## 💡 How to Contribute
 Want to make The Chātaka even better? Follow these steps:
