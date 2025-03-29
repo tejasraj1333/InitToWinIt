@@ -69,18 +69,20 @@ const News = () => {
     setSearchQuery(query);
   };
 
-  // Get articles from the selected publisher or all
+  // Get articles from the API or mock data as fallback
   const getArticles = () => {
-    if (activeSource && !isLoading) {
+    // For selected publisher, use mock data from that publisher
+    if (activeSource) {
       const publisher = mockPublishers.find(pub => pub.id === activeSource);
       return publisher ? publisher.articles : [];
     }
     
+    // For general news, use the API data if available
     if (data?.articles && data.articles.length > 0) {
       return data.articles;
     }
     
-    // Fallback to all mock articles from all publishers
+    // Fallback to all mock articles if API fails
     return mockPublishers.flatMap(pub => pub.articles);
   };
 
@@ -96,7 +98,7 @@ const News = () => {
         activePublisherId={activeSource}
       />
       <SidebarInset>
-        <Layout onSearch={handleSearch}>
+        <Layout showSidebar={true}>
           <div className="space-y-8 animate-fade-in">
             <div className="text-center mb-6">
               <h1 className="font-display text-3xl md:text-4xl font-bold mb-4">
