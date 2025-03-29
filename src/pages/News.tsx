@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import Layout from '@/components/Layout';
@@ -27,6 +28,11 @@ import {
 } from '@/components/ui/navigation-menu';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
+import {
+  ResizablePanelGroup,
+  ResizablePanel,
+  ResizableHandle
+} from '@/components/ui/resizable';
 
 interface NewsSource {
   id: string;
@@ -143,7 +149,7 @@ const News = () => {
 
   return (
     <Layout onSearch={handleSearch}>
-      <div className="space-y-8 animate-fade-in">
+      <div className="space-y-6 animate-fade-in">
         <div className="text-center mb-6">
           <h1 className="font-display text-3xl md:text-4xl font-bold mb-4">
             India News
@@ -153,115 +159,7 @@ const News = () => {
           </p>
         </div>
         
-        <div className="mb-8">
-          <div className="flex flex-wrap justify-between items-center mb-4">
-            <h2 className="text-xl font-semibold">News Sources</h2>
-            
-            <Dialog>
-              <DialogTrigger asChild>
-                <Button variant="outline" size="sm">Manage Subscriptions</Button>
-              </DialogTrigger>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>Manage News Sources</DialogTitle>
-                  <DialogDescription>
-                    Subscribe to news sources to see their content in your feed.
-                  </DialogDescription>
-                </DialogHeader>
-                
-                <div className="mb-4">
-                  <h3 className="text-sm font-medium mb-2">Your Subscriptions</h3>
-                  {subscribedSources.length > 0 ? (
-                    <div className="flex flex-wrap gap-2">
-                      {subscribedSources.map(source => (
-                        <div key={source.id} className="flex items-center">
-                          <Badge variant="outline" className="mr-1">{source.name}</Badge>
-                          <Button 
-                            variant="ghost" 
-                            size="icon" 
-                            className="h-5 w-5 rounded-full"
-                            onClick={() => handleUnsubscribe(source.id)}
-                          >
-                            <span className="sr-only">Remove</span>
-                            <X className="h-3 w-3" />
-                          </Button>
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <p className="text-sm text-muted-foreground">No subscriptions yet</p>
-                  )}
-                </div>
-                
-                <div className="mb-4">
-                  <h3 className="text-sm font-medium mb-2">Available Sources</h3>
-                  <div className="flex flex-wrap gap-2">
-                    {availableSources
-                      .filter(source => !subscribedSources.some(s => s.id === source.id))
-                      .map(source => (
-                        <Badge 
-                          key={source.id} 
-                          variant="outline" 
-                          className="cursor-pointer hover:bg-primary/10"
-                          onClick={() => handleSubscribe(source)}
-                        >
-                          + {source.name}
-                        </Badge>
-                      ))}
-                  </div>
-                </div>
-                
-                <div className="space-y-2">
-                  <h3 className="text-sm font-medium">Add Custom Source</h3>
-                  <div className="grid grid-cols-2 gap-2">
-                    <Input 
-                      placeholder="Source Name" 
-                      value={newSourceName}
-                      onChange={(e) => setNewSourceName(e.target.value)}
-                    />
-                    <Input 
-                      placeholder="Source ID" 
-                      value={newSourceId}
-                      onChange={(e) => setNewSourceId(e.target.value)}
-                    />
-                  </div>
-                  <Button variant="secondary" size="sm" onClick={handleAddCustomSource}>
-                    Add Source
-                  </Button>
-                </div>
-                
-                <DialogFooter>
-                  <DialogTrigger asChild>
-                    <Button>Close</Button>
-                  </DialogTrigger>
-                </DialogFooter>
-              </DialogContent>
-            </Dialog>
-          </div>
-          
-          <div className="flex overflow-x-auto pb-2 space-x-2">
-            <Button 
-              variant={activeSource === null ? "default" : "outline"}
-              size="sm"
-              onClick={() => setActiveSource(null)}
-            >
-              All Sources
-            </Button>
-            
-            {subscribedSources.map(source => (
-              <Button
-                key={source.id}
-                variant={activeSource === source.id ? "default" : "outline"}
-                size="sm"
-                onClick={() => setActiveSource(source.id)}
-              >
-                {source.name}
-              </Button>
-            ))}
-          </div>
-        </div>
-        
-        <div className="mb-8">
+        <div className="mb-4">
           <div className="flex overflow-x-auto pb-2 space-x-2">
             <Button 
               variant={selectedCategory === null ? "default" : "outline"}
@@ -284,35 +182,155 @@ const News = () => {
           </div>
         </div>
         
-        {isLoading ? (
-          <div className="flex justify-center py-12">
-            <Loader2 className="h-8 w-8 animate-spin text-primary" />
-          </div>
-        ) : data?.articles && data.articles.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {data.articles.map((article, index) => (
-              <NewsCard 
-                key={`${article.title}-${index}`}
-                id={`${index}`}
-                title={article.title}
-                summary={article.description || "No description available"}
-                category={article.source.name || "News"}
-                image={article.urlToImage || undefined}
-                source={article.source.name || "Unknown Source"}
-                publishedAt={new Date(article.publishedAt).toLocaleDateString()}
-                commentsCount={0}
-                likesCount={0}
-                url={article.url}
-              />
-            ))}
-          </div>
-        ) : (
-          <div className="text-center py-12">
-            <p className="text-muted-foreground text-lg">
-              No news articles found matching your criteria.
-            </p>
-          </div>
-        )}
+        <ResizablePanelGroup direction="horizontal" className="rounded-lg border">
+          <ResizablePanel defaultSize={75} minSize={50}>
+            <div className="p-4">
+              {isLoading ? (
+                <div className="flex justify-center py-12">
+                  <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                </div>
+              ) : data?.articles && data.articles.length > 0 ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {data.articles.map((article, index) => (
+                    <NewsCard 
+                      key={`${article.title}-${index}`}
+                      id={`${index}`}
+                      title={article.title}
+                      summary={article.description || "No description available"}
+                      category={article.source.name || "News"}
+                      image={article.urlToImage || undefined}
+                      source={article.source.name || "Unknown Source"}
+                      publishedAt={new Date(article.publishedAt).toLocaleDateString()}
+                      commentsCount={0}
+                      likesCount={0}
+                      url={article.url}
+                    />
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-12">
+                  <p className="text-muted-foreground text-lg">
+                    No news articles found matching your criteria.
+                  </p>
+                </div>
+              )}
+            </div>
+          </ResizablePanel>
+          
+          <ResizableHandle withHandle />
+          
+          <ResizablePanel defaultSize={25} minSize={15}>
+            <div className="p-4 h-full overflow-auto">
+              <div className="flex justify-between items-center mb-4">
+                <h2 className="text-xl font-semibold">News Sources</h2>
+                
+                <Dialog>
+                  <DialogTrigger asChild>
+                    <Button variant="outline" size="sm">Manage</Button>
+                  </DialogTrigger>
+                  <DialogContent>
+                    <DialogHeader>
+                      <DialogTitle>Manage News Sources</DialogTitle>
+                      <DialogDescription>
+                        Subscribe to news sources to see their content in your feed.
+                      </DialogDescription>
+                    </DialogHeader>
+                    
+                    <div className="mb-4">
+                      <h3 className="text-sm font-medium mb-2">Your Subscriptions</h3>
+                      {subscribedSources.length > 0 ? (
+                        <div className="flex flex-wrap gap-2">
+                          {subscribedSources.map(source => (
+                            <div key={source.id} className="flex items-center">
+                              <Badge variant="outline" className="mr-1">{source.name}</Badge>
+                              <Button 
+                                variant="ghost" 
+                                size="icon" 
+                                className="h-5 w-5 rounded-full"
+                                onClick={() => handleUnsubscribe(source.id)}
+                              >
+                                <span className="sr-only">Remove</span>
+                                <X className="h-3 w-3" />
+                              </Button>
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <p className="text-sm text-muted-foreground">No subscriptions yet</p>
+                      )}
+                    </div>
+                    
+                    <div className="mb-4">
+                      <h3 className="text-sm font-medium mb-2">Available Sources</h3>
+                      <div className="flex flex-wrap gap-2">
+                        {availableSources
+                          .filter(source => !subscribedSources.some(s => s.id === source.id))
+                          .map(source => (
+                            <Badge 
+                              key={source.id} 
+                              variant="outline" 
+                              className="cursor-pointer hover:bg-primary/10"
+                              onClick={() => handleSubscribe(source)}
+                            >
+                              + {source.name}
+                            </Badge>
+                          ))}
+                      </div>
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <h3 className="text-sm font-medium">Add Custom Source</h3>
+                      <div className="grid grid-cols-2 gap-2">
+                        <Input 
+                          placeholder="Source Name" 
+                          value={newSourceName}
+                          onChange={(e) => setNewSourceName(e.target.value)}
+                        />
+                        <Input 
+                          placeholder="Source ID" 
+                          value={newSourceId}
+                          onChange={(e) => setNewSourceId(e.target.value)}
+                        />
+                      </div>
+                      <Button variant="secondary" size="sm" onClick={handleAddCustomSource}>
+                        Add Source
+                      </Button>
+                    </div>
+                    
+                    <DialogFooter>
+                      <DialogTrigger asChild>
+                        <Button>Close</Button>
+                      </DialogTrigger>
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
+              </div>
+              
+              <div className="space-y-2">
+                <Button 
+                  variant={activeSource === null ? "default" : "outline"}
+                  size="sm"
+                  className="w-full justify-start"
+                  onClick={() => setActiveSource(null)}
+                >
+                  All Sources
+                </Button>
+                
+                {subscribedSources.map(source => (
+                  <Button
+                    key={source.id}
+                    variant={activeSource === source.id ? "default" : "outline"}
+                    size="sm"
+                    className="w-full justify-start"
+                    onClick={() => setActiveSource(source.id)}
+                  >
+                    {source.name}
+                  </Button>
+                ))}
+              </div>
+            </div>
+          </ResizablePanel>
+        </ResizablePanelGroup>
       </div>
     </Layout>
   );
