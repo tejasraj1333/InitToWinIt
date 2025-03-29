@@ -80,10 +80,12 @@ const MapComponent: React.FC<MapProps> = ({
   return (
     <MapContainer
       style={mapContainerStyle}
+      center={mapCenter}
+      zoom={zoom}
       scrollWheelZoom={true}
-      center={mapCenter as any}
-      zoom={zoom as any}
     >
+      <MapUpdater center={mapCenter} zoom={zoom} />
+      
       <TileLayer
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
@@ -93,6 +95,7 @@ const MapComponent: React.FC<MapProps> = ({
         <Marker 
           key={`${location.name}-${index}`}
           position={[location.lat, location.lng]}
+          icon={getMarkerIcon(location)}
           eventHandlers={{
             click: () => {
               if (onMarkerClick) {
