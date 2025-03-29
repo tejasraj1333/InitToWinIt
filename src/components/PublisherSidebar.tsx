@@ -30,7 +30,7 @@ const PublisherSidebar: React.FC<PublisherSidebarProps> = ({
   const navigate = useNavigate();
 
   return (
-    <Sidebar side="right" variant="floating">
+    <Sidebar side="right" variant="floating" collapsible="none" className="fixed right-0 top-[73px] h-[calc(100vh-73px)]">
       <SidebarHeader>
         <div className="flex items-center justify-between px-4 py-2">
           <h3 className="text-base font-semibold">Publishers</h3>

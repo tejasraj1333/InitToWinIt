@@ -12,9 +12,10 @@ import { Input } from '@/components/ui/input';
 interface LayoutProps {
   children: React.ReactNode;
   onSearch?: (query: string) => void;
+  showSidebar?: boolean;
 }
 
-const Layout: React.FC<LayoutProps> = ({ children, onSearch }) => {
+const Layout: React.FC<LayoutProps> = ({ children, onSearch, showSidebar = false }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [searchText, setSearchText] = useState('');
   const location = useLocation();
@@ -185,10 +186,16 @@ const Layout: React.FC<LayoutProps> = ({ children, onSearch }) => {
         )}
       </header>
       
-      {/* Main Content */}
-      <main className="flex-1 container mx-auto px-4 py-6 animate-fade-in">
-        {children}
-      </main>
+      {/* Main Content with Sidebar */}
+      <div className="flex-1 flex">
+        {/* Main Content */}
+        <main className={cn(
+          "flex-1 container mx-auto px-4 py-6 animate-fade-in",
+          showSidebar && "pr-[280px]" // Add padding to accommodate the sidebar
+        )}>
+          {children}
+        </main>
+      </div>
       
       {/* Footer */}
       <footer className="bg-muted py-6 border-t border-border">
