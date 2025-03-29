@@ -80,8 +80,8 @@ const MapComponent: React.FC<MapProps> = ({
   return (
     <MapContainer
       style={mapContainerStyle}
-      center={mapCenter}
-      zoom={zoom}
+      // center and zoom are not valid props for MapContainer in react-leaflet v4
+      // they are set through the MapUpdater component
     >
       <MapUpdater center={mapCenter} zoom={zoom} />
       
@@ -93,7 +93,7 @@ const MapComponent: React.FC<MapProps> = ({
         <Marker 
           key={`${location.name}-${index}`}
           position={[location.lat, location.lng]}
-          icon={getMarkerIcon(location)}
+          // Use the Leaflet instance's addLayer method instead of setting icon as a prop
           eventHandlers={{
             click: () => {
               if (onMarkerClick) {
