@@ -80,7 +80,6 @@ const MapComponent: React.FC<MapProps> = ({
   return (
     <MapContainer
       style={mapContainerStyle}
-      center={mapCenter}
       zoom={zoom}
       scrollWheelZoom={true}
     >
@@ -88,7 +87,6 @@ const MapComponent: React.FC<MapProps> = ({
       
       <TileLayer
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
       />
       
       {locations.map((location, index) => (
