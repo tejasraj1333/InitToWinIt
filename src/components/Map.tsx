@@ -80,8 +80,8 @@ const MapComponent: React.FC<MapProps> = ({
   return (
     <MapContainer
       style={mapContainerStyle}
-      defaultCenter={mapCenter}
-      defaultZoom={zoom}
+      center={mapCenter}
+      zoom={zoom}
       scrollWheelZoom={true}
     >
       <MapUpdater center={mapCenter} zoom={zoom} />
