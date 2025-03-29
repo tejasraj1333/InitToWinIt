@@ -1,9 +1,8 @@
-
 import React, { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import Layout from '@/components/Layout';
 import NewsCard from '@/components/NewsCard';
-import { Loader2 } from 'lucide-react';
+import { Loader2, X } from 'lucide-react';
 import { useNews } from '@/services/newsService';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
@@ -29,7 +28,6 @@ import {
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 
-// News source definition
 interface NewsSource {
   id: string;
   name: string;
@@ -60,7 +58,6 @@ const News = () => {
   const { data, isLoading, isError, error } = useNews(searchQuery, activeSource);
   const { toast } = useToast();
   
-  // Load subscribed sources from localStorage
   const [storedSources, setStoredSources] = useLocalStorage<NewsSource[]>('subscribedNewsSources', []);
   
   useEffect(() => {
@@ -70,11 +67,9 @@ const News = () => {
   }, [storedSources]);
   
   useEffect(() => {
-    // Update search query when URL query parameter changes
     setSearchQuery(initialSearchQuery);
   }, [initialSearchQuery]);
 
-  // Use useEffect to show error toast only when error state changes
   useEffect(() => {
     if (isError) {
       toast({
@@ -134,13 +129,10 @@ const News = () => {
       name: newSourceName.trim()
     };
     
-    // Add to available sources
     setAvailableSources([...availableSources, newSource]);
     
-    // Subscribe to the new source
     handleSubscribe(newSource);
     
-    // Clear form
     setNewSourceName('');
     setNewSourceId('');
   };
@@ -152,7 +144,6 @@ const News = () => {
   return (
     <Layout onSearch={handleSearch}>
       <div className="space-y-8 animate-fade-in">
-        {/* Page Header */}
         <div className="text-center mb-6">
           <h1 className="font-display text-3xl md:text-4xl font-bold mb-4">
             India News
@@ -162,7 +153,6 @@ const News = () => {
           </p>
         </div>
         
-        {/* Sources Navigation */}
         <div className="mb-8">
           <div className="flex flex-wrap justify-between items-center mb-4">
             <h2 className="text-xl font-semibold">News Sources</h2>
@@ -179,7 +169,6 @@ const News = () => {
                   </DialogDescription>
                 </DialogHeader>
                 
-                {/* Subscribed Sources */}
                 <div className="mb-4">
                   <h3 className="text-sm font-medium mb-2">Your Subscriptions</h3>
                   {subscribedSources.length > 0 ? (
@@ -204,7 +193,6 @@ const News = () => {
                   )}
                 </div>
                 
-                {/* Available Sources */}
                 <div className="mb-4">
                   <h3 className="text-sm font-medium mb-2">Available Sources</h3>
                   <div className="flex flex-wrap gap-2">
@@ -223,7 +211,6 @@ const News = () => {
                   </div>
                 </div>
                 
-                {/* Add Custom Source */}
                 <div className="space-y-2">
                   <h3 className="text-sm font-medium">Add Custom Source</h3>
                   <div className="grid grid-cols-2 gap-2">
@@ -252,7 +239,6 @@ const News = () => {
             </Dialog>
           </div>
           
-          {/* Source Filters */}
           <div className="flex overflow-x-auto pb-2 space-x-2">
             <Button 
               variant={activeSource === null ? "default" : "outline"}
@@ -275,7 +261,6 @@ const News = () => {
           </div>
         </div>
         
-        {/* Categories */}
         <div className="mb-8">
           <div className="flex overflow-x-auto pb-2 space-x-2">
             <Button 
@@ -299,7 +284,6 @@ const News = () => {
           </div>
         </div>
         
-        {/* News Grid */}
         {isLoading ? (
           <div className="flex justify-center py-12">
             <Loader2 className="h-8 w-8 animate-spin text-primary" />

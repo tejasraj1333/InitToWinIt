@@ -80,8 +80,8 @@ const MapComponent: React.FC<MapProps> = ({
   return (
     <MapContainer
       style={mapContainerStyle}
-      center={mapCenter}
-      zoom={zoom}
+      defaultCenter={mapCenter}
+      defaultZoom={zoom}
       scrollWheelZoom={true}
     >
       <MapUpdater center={mapCenter} zoom={zoom} />
@@ -95,7 +95,6 @@ const MapComponent: React.FC<MapProps> = ({
         <Marker 
           key={`${location.name}-${index}`}
           position={[location.lat, location.lng]}
-          icon={getMarkerIcon(location)}
           eventHandlers={{
             click: () => {
               if (onMarkerClick) {
