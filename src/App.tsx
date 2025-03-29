@@ -8,7 +8,6 @@ import News from "./pages/News";
 import Map from "./pages/Map";
 import NotFound from "./pages/NotFound";
 import NewsDetail from "./pages/NewsDetail";
-import { NavigationMenuProvider } from "@radix-ui/react-navigation-menu";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -22,19 +21,17 @@ const queryClient = new QueryClient({
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
-      <NavigationMenuProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<Navigate to="/news" replace />} />
-            <Route path="/news" element={<News />} />
-            <Route path="/map" element={<Map />} />
-            <Route path="/news/:id" element={<NewsDetail />} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </BrowserRouter>
-      </NavigationMenuProvider>
+      <Toaster />
+      <Sonner />
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<Navigate to="/news" replace />} />
+          <Route path="/news" element={<News />} />
+          <Route path="/map" element={<Map />} />
+          <Route path="/news/:id" element={<NewsDetail />} />
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
 );
